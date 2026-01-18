@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "comment": "Example hook - Remove if not needed",
+            "command": "echo 'Tool completed successfully'"
+          }
+        ]
+      }
+    ]
+  }
+}

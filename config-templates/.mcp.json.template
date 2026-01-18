@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "skill-registry": {
+      "command": "node",
+      "args": ["{PATH_TO_REPO}/skill-registry-mcp/dist/index.js"]
+    }
+  }
+}
