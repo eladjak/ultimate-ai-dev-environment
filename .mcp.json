@@ -1,0 +1,8 @@
+{
+  "mcpServers": {
+    "skill-registry": {
+      "command": "node",
+      "args": ["C:\\Users\\eladj\\ultimate-ai-dev-environment\\skill-registry-mcp\\dist\\index.js"]
+    }
+  }
+}
