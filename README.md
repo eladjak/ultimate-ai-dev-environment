@@ -1,10 +1,11 @@
 # 🚀 Ultimate AI Development Environment
 
-> The most comprehensive AI development setup - 64 skills, 18 MCP servers, 20+ AI tools
+> The most comprehensive AI development setup - 95+ skills, 11 MCP servers, 6 cc10x agents, 20+ AI tools
 
-[![Skills](https://img.shields.io/badge/Skills-64-blue.svg)](./docs/SKILLS_CATALOG.md)
-[![MCP Servers](https://img.shields.io/badge/MCP_Servers-18-green.svg)](./docs/MCP_SERVERS_GUIDE.md)
-[![AI Tools](https://img.shields.io/badge/AI_Tools-20+-orange.svg)](./docs/AI_TOOLS_OVERVIEW.md)
+[![Skills](https://img.shields.io/badge/Skills-95+-blue.svg)](./SETUP_COMPLETE.md)
+[![MCP Servers](https://img.shields.io/badge/MCP_Servers-11-green.svg)](./SETUP_COMPLETE.md)
+[![Agents](https://img.shields.io/badge/Agents-6-purple.svg)](./agents/)
+[![AI Tools](https://img.shields.io/badge/AI_Tools-20+-orange.svg)](./SETUP_COMPLETE.md)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 [עברית](./README.he.md) | English
