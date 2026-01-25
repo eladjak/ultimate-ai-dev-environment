@@ -16,6 +16,7 @@ Welcome to the Ultimate AI Dev Environment documentation!
 
 ### Advanced Features
 - [KINETIC_VIDEO_SETUP.md](./KINETIC_VIDEO_SETUP.md) - 🎬 Create kinetic typography videos with Claude
+- [CLAUDE_TASK_VIEWER.md](./CLAUDE_TASK_VIEWER.md) - 📊 Real-time Kanban board for Claude Code tasks
 
 ---
 
