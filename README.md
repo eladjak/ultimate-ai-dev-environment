@@ -2,10 +2,10 @@
 
 > The most comprehensive AI development setup - 112+ skills, 11 MCP servers, 15 agents, 23 commands, 20+ rules
 
-[![Skills](https://img.shields.io/badge/Skills-112+-blue.svg)](./docs/SKILLS_CATALOG.md)
+[![Skills](https://img.shields.io/badge/Skills-120+-blue.svg)](./docs/SKILLS_CATALOG.md)
 [![MCP Servers](https://img.shields.io/badge/MCP_Servers-11-green.svg)](./docs/MCP_SERVERS_GUIDE.md)
 [![Agents](https://img.shields.io/badge/Agents-15-purple.svg)](./agents/)
-[![Commands](https://img.shields.io/badge/Commands-23-cyan.svg)](./commands/)
+[![Commands](https://img.shields.io/badge/Commands-27-cyan.svg)](./commands/)
 [![Rules](https://img.shields.io/badge/Rules-20-orange.svg)](./rules/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
@@ -24,7 +24,7 @@
 
 ### Core Components
 
-#### 1. 64 Specialized Skills
+#### 1. 120+ Specialized Skills
 
 **LSP & MCP Skills (NEW! - Based on presentation insights):**
 - `lsp-integration` - 900x faster code understanding than grep
@@ -53,6 +53,11 @@
 - `golang-patterns` / `golang-testing` - Go idioms and testing patterns
 - `composition-patterns` - React compound components (Vercel)
 - `baseline-ui` / `fixing-accessibility` / `fixing-metadata` / `fixing-motion-performance` - UI polish skills (ibelick)
+- `react-native-callstack` - Comprehensive RN performance (28 reference docs from Callstack!)
+- `expo-app-design` - 6 Expo skills: building-native-ui, expo-api-routes, expo-tailwind-setup, etc.
+- `expo-deployment` - CI/CD workflows and deployment patterns
+- `design-lab` - Design principles and workflows (0xdesign)
+- `ui-ux-pro-max` - Advanced UI/UX with data files (colors, icons, typography, charts)
 - `strategic-compact` - Summarization and compression strategies
 - `eval-harness` - Evaluation frameworks for AI systems
 - `clickhouse-io` / `postgres-patterns` - Database best practices
