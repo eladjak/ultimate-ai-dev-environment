@@ -1,11 +1,12 @@
 # 🚀 Ultimate AI Development Environment
 
-> The most comprehensive AI development setup - 95+ skills, 11 MCP servers, 6 cc10x agents, 20+ AI tools
+> The most comprehensive AI development setup - 112+ skills, 11 MCP servers, 15 agents, 23 commands, 20+ rules
 
-[![Skills](https://img.shields.io/badge/Skills-95+-blue.svg)](./SETUP_COMPLETE.md)
-[![MCP Servers](https://img.shields.io/badge/MCP_Servers-11-green.svg)](./SETUP_COMPLETE.md)
-[![Agents](https://img.shields.io/badge/Agents-6-purple.svg)](./agents/)
-[![AI Tools](https://img.shields.io/badge/AI_Tools-20+-orange.svg)](./SETUP_COMPLETE.md)
+[![Skills](https://img.shields.io/badge/Skills-112+-blue.svg)](./docs/SKILLS_CATALOG.md)
+[![MCP Servers](https://img.shields.io/badge/MCP_Servers-11-green.svg)](./docs/MCP_SERVERS_GUIDE.md)
+[![Agents](https://img.shields.io/badge/Agents-15-purple.svg)](./agents/)
+[![Commands](https://img.shields.io/badge/Commands-23-cyan.svg)](./commands/)
+[![Rules](https://img.shields.io/badge/Rules-20-orange.svg)](./rules/)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 
 [עברית](./README.he.md) | English
@@ -46,9 +47,32 @@
 - `aws-account-management` - AWS operations
 - `aws-agentcore` - AWS Bedrock AgentCore
 
-**And 49 more skills!** See [Full Skills Catalog](./docs/SKILLS_CATALOG.md)
+**New in v2.0 (Jan 2026):**
+- `continuous-learning` / `continuous-learning-v2` - Auto-extract patterns from sessions
+- `iterative-retrieval` - Progressive context refinement for subagents
+- `golang-patterns` / `golang-testing` - Go idioms and testing patterns
+- `composition-patterns` - React compound components (Vercel)
+- `baseline-ui` / `fixing-accessibility` / `fixing-metadata` / `fixing-motion-performance` - UI polish skills (ibelick)
+- `strategic-compact` - Summarization and compression strategies
+- `eval-harness` - Evaluation frameworks for AI systems
+- `clickhouse-io` / `postgres-patterns` - Database best practices
 
-#### 2. 18 MCP Servers
+**And 90+ more skills!** See [Full Skills Catalog](./docs/SKILLS_CATALOG.md)
+
+#### 2. 15 Specialized Agents
+
+- `architect` - System design decisions
+- `code-reviewer` - Quality and security analysis
+- `security-reviewer` - Vulnerability detection
+- `e2e-runner` - Playwright test automation
+- `database-reviewer` - Database schema and query review
+- `go-reviewer` / `go-build-resolver` - Go-specific agents
+- `tdd-guide` - Test-driven development guidance
+- `refactor-cleaner` - Dead code elimination
+
+See all agents in [agents/](./agents/)
+
+#### 3. 11 MCP Servers
 
 **Custom Developed:**
 - **skill-registry** ⭐ - Central skill discovery and recommendation engine
