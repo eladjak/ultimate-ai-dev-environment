@@ -401,10 +401,11 @@
     <div class="toast" id="toast"></div>
 
     <script>
-        // Configuration
+        // Configuration - auto-detect if running via server or file://
+        const isLocalServer = window.location.protocol === 'http:' || window.location.protocol === 'https:';
         const CONFIG = {
-            registryPath: 'file:///C:/Users/eladj/.claude/projects-registry.json',
-            tokenPath: 'file:///C:/Users/eladj/.claude/token-usage.json',
+            registryPath: isLocalServer ? '/projects-registry.json' : 'file:///C:/Users/eladj/.claude/projects-registry.json',
+            tokenPath: isLocalServer ? '/token-usage.json' : 'file:///C:/Users/eladj/.claude/token-usage.json',
             refreshInterval: 5000, // 5 seconds
             maxBudget: 200
         };
