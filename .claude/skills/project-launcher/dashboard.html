@@ -1,0 +1,1194 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Claude Dashboard</title>
+
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#0a0a12">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon-192.png">
+
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --bg: #0a0a12;
+            --bg-secondary: #12121a;
+            --card: rgba(255,255,255,0.04);
+            --card-hover: rgba(255,255,255,0.08);
+            --blue: #3b82f6;
+            --purple: #8b5cf6;
+            --green: #10b981;
+            --yellow: #f59e0b;
+            --red: #ef4444;
+            --cyan: #06b6d4;
+            --text: #fff;
+            --text-dim: #64748b;
+            --border: rgba(255,255,255,0.08);
+        }
+
+        .light-mode {
+            --bg: #f5f5f7;
+            --bg-secondary: #ffffff;
+            --card: rgba(0,0,0,0.04);
+            --card-hover: rgba(0,0,0,0.08);
+            --text: #1a1a2e;
+            --text-dim: #64748b;
+            --border: rgba(0,0,0,0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 15px;
+            font-size: 14px;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Header */
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 15px;
+            background: var(--card);
+            border-radius: 12px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .logo { font-size: 1.8em; cursor: pointer; }
+        .header h1 { font-size: 1.3em; font-weight: 600; }
+        .header-stats { display: flex; gap: 15px; flex-wrap: wrap; }
+        .stat { text-align: center; min-width: 50px; }
+        .stat-num { font-size: 1.3em; font-weight: 700; color: var(--blue); }
+        .stat-label { font-size: 0.7em; color: var(--text-dim); }
+
+        .header-controls { display: flex; align-items: center; gap: 10px; }
+        .theme-toggle {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+
+        .sync-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75em;
+            color: var(--text-dim);
+        }
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: pulse 2s infinite;
+        }
+        .sync-dot.error { background: var(--red); animation: none; }
+        .sync-dot.connecting { background: var(--yellow); }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Token Usage */
+        .token-bar {
+            background: var(--card);
+            border-radius: 12px;
+            padding: 12px 15px;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+        .token-info { display: flex; align-items: center; gap: 8px; }
+        .token-icon { font-size: 1.2em; }
+        .token-text { font-size: 0.85em; color: var(--text-dim); }
+        .token-amount { color: var(--green); font-weight: 600; }
+        .token-progress {
+            flex: 1;
+            min-width: 100px;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+            cursor: pointer;
+        }
+        .token-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--green), var(--blue));
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        .token-history-btn {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text-dim);
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+
+        /* Search & Filters */
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text);
+            font-size: 0.9em;
+        }
+        .search-box::placeholder { color: var(--text-dim); }
+        .search-box:focus { outline: none; border-color: var(--blue); }
+
+        .filter-btn {
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text-dim);
+            cursor: pointer;
+            font-size: 0.85em;
+            transition: all 0.2s;
+        }
+        .filter-btn:hover, .filter-btn.active {
+            background: var(--blue);
+            color: white;
+            border-color: var(--blue);
+        }
+
+        /* Quick Actions */
+        .actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        .action-btn {
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            border: none;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+        .action-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 20px rgba(59,130,246,0.3); }
+        .action-btn.secondary { background: var(--card); border: 1px solid var(--border); }
+        .action-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+        /* Kanban Board */
+        .kanban-board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .kanban-column {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            min-height: 200px;
+        }
+        .kanban-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border);
+        }
+        .kanban-title {
+            font-weight: 600;
+            font-size: 0.9em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .kanban-count {
+            background: var(--card);
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+            color: var(--text-dim);
+        }
+        .kanban-projects {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            min-height: 100px;
+        }
+        .kanban-projects.drag-over {
+            background: rgba(59,130,246,0.1);
+            border-radius: 8px;
+        }
+
+        /* Project Card */
+        .project {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px;
+            cursor: grab;
+            transition: all 0.2s;
+            position: relative;
+        }
+        .project:hover {
+            background: var(--card-hover);
+            border-color: var(--blue);
+            transform: translateY(-2px);
+        }
+        .project.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+        .project.updated {
+            animation: highlight 1s ease;
+        }
+        @keyframes highlight {
+            0% { border-color: var(--green); box-shadow: 0 0 15px rgba(16,185,129,0.3); }
+            100% { border-color: var(--border); box-shadow: none; }
+        }
+        .project-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 6px;
+        }
+        .project-icon { font-size: 1.4em; }
+        .project-title { font-weight: 600; font-size: 0.9em; flex: 1; }
+        .project-id {
+            font-size: 0.65em;
+            color: var(--text-dim);
+            background: rgba(255,255,255,0.05);
+            padding: 2px 6px;
+            border-radius: 8px;
+        }
+        .project-desc {
+            color: var(--text-dim);
+            font-size: 0.75em;
+            line-height: 1.4;
+            margin-bottom: 8px;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .project-meta {
+            font-size: 0.7em;
+            color: var(--text-dim);
+            margin-bottom: 8px;
+        }
+        .project-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .project-category {
+            font-size: 0.65em;
+            padding: 2px 6px;
+            border-radius: 8px;
+        }
+        .cat-business { background: rgba(16,185,129,0.15); color: var(--green); }
+        .cat-development { background: rgba(59,130,246,0.15); color: var(--blue); }
+        .cat-finance { background: rgba(245,158,11,0.15); color: var(--yellow); }
+        .cat-edutech { background: rgba(139,92,246,0.15); color: var(--purple); }
+        .cat-content { background: rgba(239,68,68,0.15); color: var(--red); }
+        .cat-web { background: rgba(6,182,212,0.15); color: var(--cyan); }
+
+        .launch-btn {
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.75em;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .launch-btn:hover { transform: scale(1.05); }
+
+        /* AI Recommendations */
+        .ai-panel {
+            background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1));
+            border: 1px solid var(--purple);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+        .ai-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .ai-icon { font-size: 1.5em; }
+        .ai-title { font-weight: 600; }
+        .ai-content { color: var(--text-dim); font-size: 0.9em; line-height: 1.5; }
+        .ai-suggestion {
+            background: var(--card);
+            border-radius: 8px;
+            padding: 10px;
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: var(--green);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 10px;
+            font-weight: 600;
+            display: none;
+            z-index: 1000;
+            animation: slideIn 0.3s;
+        }
+        .toast.show { display: block; }
+        .toast.error { background: var(--red); }
+        .toast.info { background: var(--blue); }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal.show { display: flex; }
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 16px;
+            padding: 25px;
+            max-width: 500px;
+            width: 100%;
+            border: 1px solid var(--border);
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+        .modal-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            color: var(--text-dim);
+            font-size: 1.5em;
+            cursor: pointer;
+        }
+        .modal-body { margin-bottom: 15px; }
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .cmd-box {
+            background: var(--bg);
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Consolas', monospace;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+            border: 1px solid var(--border);
+            user-select: all;
+            cursor: text;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+
+        /* Token History Chart */
+        .chart-container {
+            height: 150px;
+            margin: 15px 0;
+            display: flex;
+            align-items: flex-end;
+            gap: 5px;
+            padding: 10px;
+            background: var(--card);
+            border-radius: 10px;
+        }
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--blue), var(--purple));
+            border-radius: 4px 4px 0 0;
+            min-height: 5px;
+            position: relative;
+        }
+        .chart-bar:hover::after {
+            content: attr(data-value);
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--bg);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7em;
+        }
+
+        /* Install PWA Banner */
+        .pwa-banner {
+            display: none;
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            padding: 12px 15px;
+            border-radius: 12px;
+            margin-bottom: 15px;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .pwa-banner.show { display: flex; }
+        .pwa-text { font-weight: 600; }
+        .pwa-btn {
+            background: white;
+            color: var(--blue);
+            border: none;
+            padding: 8px 15px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header { flex-direction: column; text-align: center; }
+            .header-stats { justify-content: center; }
+            .kanban-board { grid-template-columns: 1fr; }
+            .controls { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <!-- PWA Install Banner -->
+    <div class="pwa-banner" id="pwaBanner">
+        <span class="pwa-text">📱 התקן כאפליקציה לגישה מהירה</span>
+        <button class="pwa-btn" onclick="installPWA()">התקן</button>
+    </div>
+
+    <!-- Header -->
+    <div class="header">
+        <div class="header-left">
+            <span class="logo" onclick="location.reload()">🤖</span>
+            <h1>Claude Dashboard</h1>
+            <div class="sync-indicator">
+                <span class="sync-dot" id="syncDot"></span>
+                <span id="syncStatus">מתחבר...</span>
+            </div>
+        </div>
+        <div class="header-stats" id="headerStats">
+            <div class="stat">
+                <div class="stat-num" id="totalProjects">-</div>
+                <div class="stat-label">פרויקטים</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num" style="color: var(--green)" id="activeProjects">-</div>
+                <div class="stat-label">פעילים</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num" style="color: var(--yellow)" id="planningProjects">-</div>
+                <div class="stat-label">בתכנון</div>
+            </div>
+            <div class="stat">
+                <div class="stat-num" style="color: var(--blue)" id="completedProjects">-</div>
+                <div class="stat-label">הושלמו</div>
+            </div>
+        </div>
+        <div class="header-controls">
+            <button class="theme-toggle" onclick="toggleTheme()" title="החלף ערכת נושא">🌙</button>
+        </div>
+    </div>
+
+    <!-- Token Usage -->
+    <div class="token-bar">
+        <div class="token-info">
+            <span class="token-icon">💎</span>
+            <span class="token-text">Max $<span id="tokenLimit">200</span> | נוצל: <span class="token-amount" id="tokenUsed">טוען...</span></span>
+        </div>
+        <div class="token-progress" onclick="showTokenHistory()">
+            <div class="token-fill" id="tokenFill" style="width: 0%"></div>
+        </div>
+        <span class="token-text" id="tokenPercent">-</span>
+        <button class="token-history-btn" onclick="showTokenHistory()">📊 היסטוריה</button>
+    </div>
+
+    <!-- AI Panel -->
+    <div class="ai-panel" id="aiPanel">
+        <div class="ai-header">
+            <span class="ai-icon">🧠</span>
+            <span class="ai-title">המלצת AI</span>
+        </div>
+        <div class="ai-content" id="aiContent">מנתח את הפרויקטים שלך...</div>
+        <div class="ai-suggestion" id="aiSuggestion" style="display: none;">
+            <span id="aiSuggestionText"></span>
+            <button class="launch-btn" onclick="launchSuggested()">🚀 הפעל</button>
+        </div>
+    </div>
+
+    <!-- Search & Filters -->
+    <div class="controls">
+        <input type="text" class="search-box" id="searchBox" placeholder="🔍 חפש פרויקט..." oninput="filterProjects()">
+        <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">הכל</button>
+        <button class="filter-btn" data-filter="in_progress" onclick="setFilter('in_progress')">🟢 פעילים</button>
+        <button class="filter-btn" data-filter="planning" onclick="setFilter('planning')">🟡 בתכנון</button>
+        <button class="filter-btn" data-filter="completed" onclick="setFilter('completed')">🔵 הושלמו</button>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="actions">
+        <button class="action-btn" onclick="launchAll()">🚀 הפעל הכל</button>
+        <button class="action-btn secondary" onclick="addProject()">➕ פרויקט חדש</button>
+        <button class="action-btn secondary" onclick="openRegistry()">📝 ערוך רג'יסטרי</button>
+        <button class="action-btn secondary" onclick="refreshData()">🔄 רענן</button>
+    </div>
+
+    <!-- Kanban Board -->
+    <div class="kanban-board" id="kanbanBoard"></div>
+
+    <!-- Command Modal -->
+    <div class="modal" id="cmdModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span id="cmdIcon">🚀</span>
+                    <span id="cmdTitle">הפעל פרויקט</span>
+                </div>
+                <button class="modal-close" onclick="closeModal('cmdModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="cmd-box" id="cmdBox" onclick="copyCommand()"></div>
+                <p style="color: var(--text-dim); font-size: 0.85em;">
+                    💡 <strong>הפעל טרמינל Git Bash</strong> והדבק את הפקודה (Ctrl+Shift+Insert)
+                </p>
+            </div>
+            <div class="modal-actions">
+                <button class="action-btn secondary" onclick="closeModal('cmdModal')">סגור</button>
+                <button class="action-btn" onclick="copyCommand()">📋 העתק</button>
+                <button class="action-btn" onclick="directLaunch()" style="background: var(--green);">🚀 הפעל ישירות</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Token History Modal -->
+    <div class="modal" id="tokenModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">
+                    <span>📊</span>
+                    <span>היסטוריית שימוש</span>
+                </div>
+                <button class="modal-close" onclick="closeModal('tokenModal')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="chart-container" id="tokenChart"></div>
+                <div style="display: flex; justify-content: space-between; color: var(--text-dim); font-size: 0.8em;">
+                    <span>7 ימים אחרונים</span>
+                    <span id="tokenAverage">ממוצע: -</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ============ Configuration ============
+        const isLocalServer = window.location.protocol === 'http:' || window.location.protocol === 'https:';
+        const CONFIG = {
+            registryPath: isLocalServer ? '/projects-registry.json' : 'file:///C:/Users/eladj/.claude/projects-registry.json',
+            tokenPath: isLocalServer ? '/token-usage.json' : 'file:///C:/Users/eladj/.claude/token-usage.json',
+            wsUrl: 'ws://localhost:3457',
+            refreshInterval: 5000,
+            maxBudget: 200
+        };
+
+        // ============ State ============
+        let projects = [];
+        let categories = {};
+        let tokenData = { used: 0, limit: 200, history: [] };
+        let lastDataHash = '';
+        let currentCmd = '';
+        let currentFilter = 'all';
+        let suggestedProject = null;
+        let ws = null;
+        let deferredPrompt = null;
+
+        const categoryNames = {
+            business: 'עסקים',
+            development: 'פיתוח',
+            finance: 'פיננסים',
+            edutech: 'EdTech',
+            content: 'תוכן',
+            web: 'אתרים'
+        };
+
+        const statusConfig = {
+            in_progress: { name: 'בעבודה', icon: '🟢', color: 'var(--green)' },
+            active: { name: 'פעיל', icon: '🟢', color: 'var(--green)' },
+            planning: { name: 'בתכנון', icon: '🟡', color: 'var(--yellow)' },
+            not_started: { name: 'לא התחיל', icon: '⚪', color: 'var(--text-dim)' },
+            completed: { name: 'הושלם', icon: '🔵', color: 'var(--blue)' },
+            paused: { name: 'מושהה', icon: '🔴', color: 'var(--red)' }
+        };
+
+        // ============ PWA ============
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            document.getElementById('pwaBanner').classList.add('show');
+        });
+
+        function installPWA() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((result) => {
+                    if (result.outcome === 'accepted') {
+                        showToast('📱 האפליקציה הותקנה!');
+                    }
+                    deferredPrompt = null;
+                    document.getElementById('pwaBanner').classList.remove('show');
+                });
+            }
+        }
+
+        // ============ Theme ============
+        function toggleTheme() {
+            document.body.classList.toggle('light-mode');
+            const btn = document.querySelector('.theme-toggle');
+            btn.textContent = document.body.classList.contains('light-mode') ? '☀️' : '🌙';
+            localStorage.setItem('theme', document.body.classList.contains('light-mode') ? 'light' : 'dark');
+        }
+
+        // Load saved theme
+        if (localStorage.getItem('theme') === 'light') {
+            document.body.classList.add('light-mode');
+            document.querySelector('.theme-toggle').textContent = '☀️';
+        }
+
+        // ============ Data Fetching ============
+        function simpleHash(str) {
+            let hash = 0;
+            for (let i = 0; i < str.length; i++) {
+                hash = ((hash << 5) - hash) + str.charCodeAt(i);
+                hash = hash & hash;
+            }
+            return hash.toString();
+        }
+
+        async function fetchJSON(url) {
+            return new Promise((resolve, reject) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('GET', url, true);
+                xhr.onload = function() {
+                    if (xhr.status === 200 || xhr.status === 0) {
+                        try { resolve(JSON.parse(xhr.responseText)); }
+                        catch (e) { reject(e); }
+                    } else { reject(new Error('Failed')); }
+                };
+                xhr.onerror = reject;
+                xhr.send();
+            });
+        }
+
+        // ============ WebSocket ============
+        function connectWebSocket() {
+            if (!isLocalServer) return;
+
+            try {
+                ws = new WebSocket(CONFIG.wsUrl);
+
+                ws.onopen = () => {
+                    document.getElementById('syncDot').classList.remove('error', 'connecting');
+                    document.getElementById('syncStatus').textContent = 'מחובר (WebSocket)';
+                };
+
+                ws.onmessage = (event) => {
+                    const data = JSON.parse(event.data);
+                    if (data.type === 'update') {
+                        projects = data.projects || projects;
+                        tokenData = data.tokens || tokenData;
+                        updateUI();
+                        showToast('🔄 עודכן בזמן אמת');
+                    }
+                };
+
+                ws.onclose = () => {
+                    document.getElementById('syncDot').classList.add('connecting');
+                    document.getElementById('syncStatus').textContent = 'מתחבר מחדש...';
+                    setTimeout(connectWebSocket, 3000);
+                };
+
+                ws.onerror = () => {
+                    // Fall back to polling
+                    ws = null;
+                };
+            } catch (e) {
+                // WebSocket not available, use polling
+            }
+        }
+
+        // ============ Refresh Data ============
+        async function refreshData() {
+            try {
+                const [registryData, tokenResponse] = await Promise.all([
+                    fetchJSON(CONFIG.registryPath),
+                    fetchJSON(CONFIG.tokenPath).catch(() => ({ used: 0, limit: 200, history: [] }))
+                ]);
+
+                const newHash = simpleHash(JSON.stringify(registryData.projects));
+                const hasChanged = newHash !== lastDataHash;
+
+                let changedIds = [];
+                if (hasChanged && projects.length > 0) {
+                    const oldMap = new Map(projects.map(p => [p.id, JSON.stringify(p)]));
+                    changedIds = registryData.projects
+                        .filter(p => oldMap.get(p.id) !== JSON.stringify(p))
+                        .map(p => p.id);
+                }
+
+                projects = registryData.projects || [];
+                categories = registryData.categories || {};
+                tokenData = tokenResponse;
+                lastDataHash = newHash;
+
+                updateUI(changedIds);
+
+                document.getElementById('syncDot').classList.remove('error', 'connecting');
+                document.getElementById('syncStatus').textContent = `סונכרן: ${new Date().toLocaleTimeString('he-IL')}`;
+
+                if (hasChanged && changedIds.length > 0) {
+                    showToast(`🔄 ${changedIds.length} פרויקטים עודכנו`);
+                }
+
+            } catch (error) {
+                console.error('Refresh failed:', error);
+                document.getElementById('syncDot').classList.add('error');
+                document.getElementById('syncStatus').textContent = 'שגיאת סנכרון';
+            }
+        }
+
+        // ============ Update UI ============
+        function updateUI(changedIds = []) {
+            updateStats();
+            updateTokenDisplay();
+            renderKanban(changedIds);
+            updateAIRecommendation();
+        }
+
+        function updateStats() {
+            const total = projects.length;
+            const active = projects.filter(p => p.status === 'in_progress' || p.status === 'active').length;
+            const planning = projects.filter(p => p.status === 'planning').length;
+            const completed = projects.filter(p => p.status === 'completed').length;
+
+            document.getElementById('totalProjects').textContent = total;
+            document.getElementById('activeProjects').textContent = active;
+            document.getElementById('planningProjects').textContent = planning;
+            document.getElementById('completedProjects').textContent = completed;
+        }
+
+        function updateTokenDisplay() {
+            const used = tokenData.used || 0;
+            const limit = tokenData.limit || CONFIG.maxBudget;
+            const percent = Math.round((used / limit) * 100);
+
+            document.getElementById('tokenUsed').textContent = `$${used}`;
+            document.getElementById('tokenLimit').textContent = limit;
+            document.getElementById('tokenPercent').textContent = `${percent}%`;
+            document.getElementById('tokenFill').style.width = `${percent}%`;
+
+            const fill = document.getElementById('tokenFill');
+            if (percent >= 80) {
+                fill.style.background = 'linear-gradient(90deg, var(--yellow), var(--red))';
+            } else if (percent >= 50) {
+                fill.style.background = 'linear-gradient(90deg, var(--green), var(--yellow))';
+            } else {
+                fill.style.background = 'linear-gradient(90deg, var(--green), var(--blue))';
+            }
+        }
+
+        // ============ AI Recommendations ============
+        function updateAIRecommendation() {
+            const aiContent = document.getElementById('aiContent');
+            const aiSuggestion = document.getElementById('aiSuggestion');
+            const aiSuggestionText = document.getElementById('aiSuggestionText');
+
+            // Simple AI logic
+            const activeProjects = projects.filter(p => p.status === 'in_progress' || p.status === 'active');
+            const recentProjects = projects
+                .filter(p => p.lastSession)
+                .sort((a, b) => new Date(b.lastSession) - new Date(a.lastSession));
+
+            if (activeProjects.length === 0) {
+                aiContent.textContent = '🎯 אין פרויקטים פעילים. מומלץ להתחיל עם פרויקט חדש!';
+                aiSuggestion.style.display = 'none';
+            } else if (recentProjects.length > 0) {
+                const daysSinceLastWork = Math.floor((new Date() - new Date(recentProjects[0].lastSession)) / (1000 * 60 * 60 * 24));
+
+                if (daysSinceLastWork > 3) {
+                    suggestedProject = recentProjects[0];
+                    aiContent.textContent = `⏰ לא עבדת על "${suggestedProject.name}" כבר ${daysSinceLastWork} ימים. מומלץ להמשיך!`;
+                    aiSuggestionText.textContent = `${suggestedProject.icon} ${suggestedProject.name}`;
+                    aiSuggestion.style.display = 'flex';
+                } else {
+                    // Find least worked on active project
+                    const leastWorked = activeProjects
+                        .filter(p => p.lastSession)
+                        .sort((a, b) => new Date(a.lastSession) - new Date(b.lastSession))[0];
+
+                    if (leastWorked) {
+                        suggestedProject = leastWorked;
+                        aiContent.textContent = `💡 "${leastWorked.name}" לא קיבל תשומת לב לאחרונה. שקול לעבוד עליו.`;
+                        aiSuggestionText.textContent = `${leastWorked.icon} ${leastWorked.name}`;
+                        aiSuggestion.style.display = 'flex';
+                    } else {
+                        aiContent.textContent = `✨ יש לך ${activeProjects.length} פרויקטים פעילים. המשך בקצב!`;
+                        aiSuggestion.style.display = 'none';
+                    }
+                }
+            } else {
+                aiContent.textContent = '🚀 התחל לעבוד על פרויקט כדי לקבל המלצות מותאמות!';
+                aiSuggestion.style.display = 'none';
+            }
+        }
+
+        function launchSuggested() {
+            if (suggestedProject) {
+                showLaunch(suggestedProject.id);
+            }
+        }
+
+        // ============ Kanban Rendering ============
+        function renderKanban(changedIds = []) {
+            const board = document.getElementById('kanbanBoard');
+            const searchTerm = document.getElementById('searchBox').value.toLowerCase();
+
+            // Filter projects
+            let filtered = projects;
+            if (searchTerm) {
+                filtered = filtered.filter(p =>
+                    p.name.toLowerCase().includes(searchTerm) ||
+                    p.description.toLowerCase().includes(searchTerm)
+                );
+            }
+            if (currentFilter !== 'all') {
+                if (currentFilter === 'in_progress') {
+                    filtered = filtered.filter(p => p.status === 'in_progress' || p.status === 'active');
+                } else {
+                    filtered = filtered.filter(p => p.status === currentFilter);
+                }
+            }
+
+            // Group by status
+            const columns = {
+                'in_progress': { title: 'בעבודה', icon: '🟢', projects: [] },
+                'planning': { title: 'בתכנון', icon: '🟡', projects: [] },
+                'not_started': { title: 'לא התחיל', icon: '⚪', projects: [] },
+                'completed': { title: 'הושלם', icon: '🔵', projects: [] }
+            };
+
+            filtered.forEach(p => {
+                const status = (p.status === 'active') ? 'in_progress' : p.status;
+                if (columns[status]) {
+                    columns[status].projects.push(p);
+                } else {
+                    columns['in_progress'].projects.push(p);
+                }
+            });
+
+            board.innerHTML = Object.entries(columns).map(([status, col]) => `
+                <div class="kanban-column" data-status="${status}">
+                    <div class="kanban-header">
+                        <span class="kanban-title">${col.icon} ${col.title}</span>
+                        <span class="kanban-count">${col.projects.length}</span>
+                    </div>
+                    <div class="kanban-projects"
+                         ondragover="handleDragOver(event)"
+                         ondrop="handleDrop(event, '${status}')"
+                         ondragleave="handleDragLeave(event)">
+                        ${col.projects.map(p => renderProjectCard(p, changedIds.includes(p.id))).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderProjectCard(p, isUpdated) {
+            const catName = categoryNames[p.category] || p.category;
+            const lastSession = p.lastSession ? `📅 ${p.lastSession}` : '';
+
+            return `
+                <div class="project ${isUpdated ? 'updated' : ''}"
+                     draggable="true"
+                     ondragstart="handleDragStart(event, ${p.id})"
+                     ondragend="handleDragEnd(event)"
+                     onclick="showLaunch(${p.id})">
+                    <div class="project-header">
+                        <span class="project-icon">${p.icon}</span>
+                        <span class="project-title">${p.name}</span>
+                        <span class="project-id">#${p.id}</span>
+                    </div>
+                    <div class="project-desc">${p.description}</div>
+                    ${lastSession ? `<div class="project-meta">${lastSession}</div>` : ''}
+                    <div class="project-footer">
+                        <span class="project-category cat-${p.category}">${catName}</span>
+                        <button class="launch-btn" onclick="event.stopPropagation(); showLaunch(${p.id})">🚀</button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // ============ Drag & Drop ============
+        let draggedProjectId = null;
+
+        function handleDragStart(event, id) {
+            draggedProjectId = id;
+            event.target.classList.add('dragging');
+            event.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(event) {
+            event.target.classList.remove('dragging');
+            document.querySelectorAll('.kanban-projects').forEach(el => el.classList.remove('drag-over'));
+        }
+
+        function handleDragOver(event) {
+            event.preventDefault();
+            event.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(event) {
+            event.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(event, newStatus) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('drag-over');
+
+            if (draggedProjectId !== null) {
+                const project = projects.find(p => p.id === draggedProjectId);
+                if (project && project.status !== newStatus) {
+                    project.status = newStatus;
+                    project.lastSession = new Date().toISOString().split('T')[0];
+
+                    // Save to file (via server)
+                    saveProjects();
+                    renderKanban([draggedProjectId]);
+                    showToast(`📋 "${project.name}" הועבר ל-${statusConfig[newStatus]?.name || newStatus}`);
+                }
+            }
+            draggedProjectId = null;
+        }
+
+        async function saveProjects() {
+            if (!isLocalServer) return;
+
+            try {
+                await fetch('/save-registry', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ projects, categories })
+                });
+            } catch (e) {
+                console.log('Save via server not available');
+            }
+        }
+
+        // ============ Filters ============
+        function setFilter(filter) {
+            currentFilter = filter;
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.filter === filter);
+            });
+            renderKanban();
+        }
+
+        function filterProjects() {
+            renderKanban();
+        }
+
+        // ============ Modals ============
+        function showLaunch(id) {
+            const p = projects.find(x => x.id === id);
+            if (!p) return;
+
+            const folder = p.folder.replace(/\\/g, '/').replace('C:', '/c');
+            currentCmd = `cd "${folder}" && claude "${p.prompt || 'קרא את CLAUDE.md והמשך מהנקודה שעצרנו'}"`;
+
+            document.getElementById('cmdIcon').textContent = p.icon;
+            document.getElementById('cmdTitle').textContent = `הפעל: ${p.name}`;
+            document.getElementById('cmdBox').textContent = currentCmd;
+            document.getElementById('cmdModal').classList.add('show');
+        }
+
+        function showTokenHistory() {
+            const chart = document.getElementById('tokenChart');
+            const history = tokenData.history || [];
+
+            // Generate last 7 days
+            const days = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dateStr = date.toISOString().split('T')[0];
+                const dayData = history.find(h => h.date === dateStr);
+                days.push({ date: dateStr, amount: dayData?.amount || 0 });
+            }
+
+            const max = Math.max(...days.map(d => d.amount), 10);
+
+            chart.innerHTML = days.map(d => `
+                <div class="chart-bar"
+                     style="height: ${(d.amount / max) * 100}%"
+                     data-value="$${d.amount}"
+                     title="${d.date}: $${d.amount}">
+                </div>
+            `).join('');
+
+            const avg = days.reduce((sum, d) => sum + d.amount, 0) / days.length;
+            document.getElementById('tokenAverage').textContent = `ממוצע: $${avg.toFixed(1)}/יום`;
+
+            document.getElementById('tokenModal').classList.add('show');
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).classList.remove('show');
+        }
+
+        function copyCommand() {
+            navigator.clipboard.writeText(currentCmd).then(() => {
+                showToast('📋 הפקודה הועתקה!');
+            });
+        }
+
+        function directLaunch() {
+            // Try to launch via server
+            if (isLocalServer) {
+                fetch('/launch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ command: currentCmd })
+                }).then(() => {
+                    showToast('🚀 הפרויקט הופעל!');
+                    closeModal('cmdModal');
+                }).catch(() => {
+                    showToast('⚠️ העתק את הפקודה והפעל ידנית', true);
+                });
+            } else {
+                copyCommand();
+            }
+        }
+
+        function launchAll() {
+            currentCmd = 'bash ~/.claude/scripts/startup-claude.sh';
+            document.getElementById('cmdIcon').textContent = '🚀';
+            document.getElementById('cmdTitle').textContent = 'הפעל את כל הפרויקטים';
+            document.getElementById('cmdBox').textContent = currentCmd + '\n\nבחר "a" בתפריט להפעלת הכל';
+            document.getElementById('cmdModal').classList.add('show');
+        }
+
+        function openRegistry() {
+            currentCmd = 'code ~/.claude/projects-registry.json';
+            document.getElementById('cmdIcon').textContent = '📝';
+            document.getElementById('cmdTitle').textContent = 'ערוך רג\'יסטרי';
+            document.getElementById('cmdBox').textContent = currentCmd;
+            document.getElementById('cmdModal').classList.add('show');
+        }
+
+        function addProject() {
+            showToast('➕ ערוך את projects-registry.json להוספת פרויקט', false);
+            openRegistry();
+        }
+
+        function showToast(msg, isError = false) {
+            const toast = document.getElementById('toast');
+            toast.textContent = msg;
+            toast.className = 'toast show' + (isError ? ' error' : '');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        // ============ Event Listeners ============
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', e => {
+                if (e.target.classList.contains('modal')) {
+                    e.target.classList.remove('show');
+                }
+            });
+        });
+
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') {
+                document.querySelectorAll('.modal.show').forEach(m => m.classList.remove('show'));
+            }
+        });
+
+        // ============ Initialize ============
+        refreshData();
+        connectWebSocket();
+        setInterval(refreshData, CONFIG.refreshInterval);
+
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) refreshData();
+        });
+
+        // Service Worker for PWA
+        if ('serviceWorker' in navigator && isLocalServer) {
+            navigator.serviceWorker.register('/sw.js').catch(() => {});
+        }
+    </script>
+</body>
+</html>
