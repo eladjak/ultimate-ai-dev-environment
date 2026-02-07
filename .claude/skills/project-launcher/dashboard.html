@@ -502,6 +502,157 @@
             cursor: pointer;
             transition: all 0.2s;
         }
+
+        /* Chat Interface */
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 280px;
+        }
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 10px 0;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .chat-message {
+            display: flex;
+            gap: 10px;
+            animation: messageIn 0.3s ease;
+        }
+        @keyframes messageIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .chat-message.user {
+            flex-direction: row-reverse;
+        }
+        .chat-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+        .chat-message.agent .chat-avatar {
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+        }
+        .chat-message.user .chat-avatar {
+            background: var(--green);
+        }
+        .chat-bubble {
+            max-width: 80%;
+            padding: 10px 14px;
+            border-radius: 16px;
+            font-size: 0.9em;
+            line-height: 1.5;
+        }
+        .chat-message.agent .chat-bubble {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px 16px 16px 4px;
+        }
+        .chat-message.user .chat-bubble {
+            background: linear-gradient(135deg, var(--blue), var(--purple));
+            color: white;
+            border-radius: 16px 16px 4px 16px;
+        }
+        .chat-suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 8px;
+        }
+        .chat-suggestion {
+            background: rgba(139,92,246,0.2);
+            border: 1px solid var(--purple);
+            color: var(--text);
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.75em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .chat-suggestion:hover {
+            background: var(--purple);
+            color: white;
+        }
+        .chat-project-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            margin-top: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .chat-project-card:hover {
+            border-color: var(--blue);
+            transform: translateY(-2px);
+        }
+        .chat-project-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 4px;
+        }
+        .chat-project-name {
+            font-weight: 600;
+            font-size: 0.85em;
+        }
+        .chat-project-desc {
+            font-size: 0.75em;
+            color: var(--text-dim);
+        }
+        .chat-input-container {
+            display: flex;
+            gap: 8px;
+            padding-top: 10px;
+            border-top: 1px solid var(--border);
+        }
+        .chat-input {
+            flex: 1;
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 10px 15px;
+            color: var(--text);
+            font-size: 0.9em;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .chat-input:focus {
+            border-color: var(--purple);
+        }
+        .chat-input::placeholder {
+            color: var(--text-dim);
+        }
+        .chat-send {
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            font-size: 1.1em;
+        }
+        .chat-send:hover {
+            transform: scale(1.1);
+        }
+        .chat-send:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
         .quick-reply:hover {
             background: var(--purple);
             border-color: var(--purple);
@@ -910,7 +1061,7 @@
         <button class="token-history-btn" onclick="showTokenHistory()">📊 היסטוריה</button>
     </div>
 
-    <!-- AI Agent Panel -->
+    <!-- AI Chat Panel -->
     <div class="ai-panel agent-panel" id="aiPanel">
         <div class="ai-header">
             <div class="agent-avatar">
@@ -919,25 +1070,18 @@
             </div>
             <div class="agent-info">
                 <span class="ai-title">קלוד - העוזר האישי שלך</span>
-                <span class="agent-status" id="agentStatus">חושב...</span>
+                <span class="agent-status" id="agentStatus">מוכן לשיחה</span>
             </div>
-            <button class="agent-refresh" onclick="nextAgentMessage()" title="הודעה הבאה">🔄</button>
+            <button class="agent-refresh" onclick="clearChat()" title="שיחה חדשה">🗑️</button>
         </div>
-        <div class="agent-message-container">
-            <div class="ai-content agent-message" id="aiContent">
-                <span class="typing-indicator">
-                    <span></span><span></span><span></span>
-                </span>
+        <div class="chat-container">
+            <div class="chat-messages" id="chatMessages"></div>
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" id="chatInput"
+                       placeholder="שאל אותי משהו... (למשל: על מה לעבוד?)"
+                       onkeypress="if(event.key==='Enter') sendChatMessage()">
+                <button class="chat-send" onclick="sendChatMessage()" id="chatSendBtn">➤</button>
             </div>
-        </div>
-        <div class="agent-actions" id="agentActions" style="display: none;">
-            <button class="agent-btn primary" id="agentPrimaryBtn" onclick="handleAgentAction('primary')">🚀 בוא נעשה את זה</button>
-            <button class="agent-btn secondary" id="agentSecondaryBtn" onclick="handleAgentAction('secondary')">אולי אחר כך</button>
-        </div>
-        <div class="agent-quick-replies" id="quickReplies" style="display: none;">
-            <button class="quick-reply" onclick="agentQuickReply('yes')">👍 כן!</button>
-            <button class="quick-reply" onclick="agentQuickReply('later')">⏰ מאוחר יותר</button>
-            <button class="quick-reply" onclick="agentQuickReply('suggest')">💡 תציע משהו אחר</button>
         </div>
     </div>
 
@@ -1224,274 +1368,292 @@
             }
         }
 
-        // ============ Smart Agent System ============
-        let currentAgentMessage = null;
-        let agentMessageIndex = 0;
-        let agentMessages = [];
+        // ============ Chat System ============
+        let chatHistory = JSON.parse(localStorage.getItem('chatHistory') || '[]');
+        let isTyping = false;
 
-        function generateAgentMessages() {
-            agentMessages = [];
-            const now = new Date();
-            const hour = now.getHours();
-            const dayOfWeek = now.getDay();
+        function initChat() {
+            renderChatHistory();
+            if (chatHistory.length === 0) {
+                // Send initial greeting
+                setTimeout(() => sendAgentMessage(getGreeting()), 500);
+            }
+        }
 
-            const activeProjects = projects.filter(p => p.status === 'in_progress' || p.status === 'active');
-            const planningProjects = projects.filter(p => p.status === 'planning');
-            const completedProjects = projects.filter(p => p.status === 'completed');
-            const pausedProjects = projects.filter(p => p.status === 'paused');
+        function getGreeting() {
+            const hour = new Date().getHours();
+            const activeCount = projects.filter(p => p.status === 'in_progress' || p.status === 'active').length;
 
-            const staleProjects = projects.filter(p => {
-                if (!p.lastSession) return false;
-                const days = Math.floor((now - new Date(p.lastSession)) / (1000 * 60 * 60 * 24));
-                return days > 5 && p.status !== 'completed' && p.status !== 'paused';
-            });
-
-            // Time-based greetings
             if (hour >= 5 && hour < 12) {
-                agentMessages.push({
-                    type: 'greeting', face: '☀️',
-                    message: `בוקר טוב! יש לך ${activeProjects.length} פרויקטים פעילים. על מה נעבוד היום?`,
-                    showActions: true, primaryText: '🎯 תבחר לי', secondaryText: 'אבחר בעצמי'
-                });
+                return `בוקר טוב! ☀️ יש לך ${activeCount} פרויקטים פעילים. על מה נעבוד היום?`;
             } else if (hour >= 12 && hour < 17) {
-                agentMessages.push({
-                    type: 'greeting', face: '💪',
-                    message: `צהריים טובים! איך הולך היום? יש עוד ${activeProjects.length} פרויקטים שמחכים.`,
-                    showQuickReplies: true
-                });
+                return `צהריים טובים! 💪 איך אפשר לעזור? יש ${activeCount} פרויקטים שמחכים.`;
             } else if (hour >= 17 && hour < 22) {
-                agentMessages.push({
-                    type: 'greeting', face: '🌅',
-                    message: `ערב טוב! עוד קצת התקדמות לפני סוף היום?`,
-                    showActions: true, primaryText: '🚀 יאללה בוא', secondaryText: 'נח היום'
-                });
+                return `ערב טוב! 🌅 רוצה להתקדם עם משהו לפני סוף היום?`;
             } else {
-                agentMessages.push({
-                    type: 'greeting', face: '🌙',
-                    message: `עדיין ער? אני מעריך את המסירות! על מה נעבוד?`,
-                    showQuickReplies: true
-                });
+                return `היי! 🌙 עדיין פה? אני מעריך את המסירות. במה אוכל לעזור?`;
             }
-
-            // Stale project nudges
-            staleProjects.forEach(p => {
-                const days = Math.floor((now - new Date(p.lastSession)) / (1000 * 60 * 60 * 24));
-                const msgs = [
-                    `הי, "${p.name}" ${p.icon} לא קיבל אהבה כבר ${days} ימים. מתי מתקדמים עם זה?`,
-                    `${p.icon} "${p.name}" - זוכר? עברו ${days} ימים. אולי הגיע הזמן לחזור?`,
-                    `"${p.name}" ${p.icon} - זה נראה משהו ממש טוב! לא חבל להשאיר אותו ככה?`,
-                    `${days} ימים בלי "${p.name}" ${p.icon}. קורה משהו? אולי אעזור להתחיל?`
-                ];
-                agentMessages.push({
-                    type: 'stale', face: '🤔',
-                    message: msgs[Math.floor(Math.random() * msgs.length)],
-                    project: p, showActions: true,
-                    primaryText: '🚀 בוא נעבוד על זה', secondaryText: 'אחר כך'
-                });
-            });
-
-            // Planning projects
-            planningProjects.forEach(p => {
-                const msgs = [
-                    `"${p.name}" ${p.icon} עדיין בתכנון... מה צריך כדי להתחיל?`,
-                    `${p.icon} יש לך רעיון מעולה ב"${p.name}". מתחילים היום?`
-                ];
-                agentMessages.push({
-                    type: 'planning', face: '💡',
-                    message: msgs[Math.floor(Math.random() * msgs.length)],
-                    project: p, showActions: true,
-                    primaryText: '✨ יאללה מתחילים', secondaryText: 'עוד לא עכשיו'
-                });
-            });
-
-            // Celebrate completed
-            if (completedProjects.length > 0 && Math.random() > 0.7) {
-                const p = completedProjects[Math.floor(Math.random() * completedProjects.length)];
-                agentMessages.push({
-                    type: 'celebrate', face: '🎉',
-                    message: `וואו, "${p.name}" ${p.icon} הושלם! כל הכבוד! מה הבא?`,
-                    showQuickReplies: true
-                });
-            }
-
-            // GitHub suggestion
-            agentMessages.push({
-                type: 'github', face: '✨',
-                message: `יש לך הרבה פרויקטים בגיטהאב. אולי נשדרג אחד מהם יחד?`,
-                showActions: true, primaryText: '🔍 בוא נבדוק', secondaryText: 'לא עכשיו'
-            });
-
-            // Relationship building
-            if (Math.random() > 0.6) {
-                agentMessages.push({
-                    type: 'relationship', face: '🤝',
-                    message: `אפשר להציע לך פרויקט חדש איתי? על סמך ההיכרות שלנו, יש לי כמה רעיונות!`,
-                    showActions: true, primaryText: '💡 מה יש לך?', secondaryText: 'בפעם אחרת'
-                });
-            }
-
-            // Paused projects
-            pausedProjects.forEach(p => {
-                agentMessages.push({
-                    type: 'paused', face: '🤷',
-                    message: `"${p.name}" ${p.icon} מושהה. עדיין רלוונטי? אולי נחזיר לחיים?`,
-                    project: p, showActions: true,
-                    primaryText: '🔄 להחזיר לפעיל', secondaryText: 'להשאיר'
-                });
-            });
-
-            // Encouragements
-            const encouragements = [
-                { face: '💪', message: `${projects.length} פרויקטים! אתה עסוק. על מה הכי חשוב להתמקד?` },
-                { face: '🎯', message: `מה המטרה הכי חשובה לך היום? אני פה לעזור!` },
-                { face: '🧠', message: `טיפ: לפעמים כדאי לסיים פרויקט לפני שמתחילים חדש.` },
-                { face: '🌟', message: `אתה עושה עבודה מדהימה! איזה פרויקט הכי קרוב לסיום?` }
-            ];
-            agentMessages.push(...encouragements.map(e => ({
-                type: 'encourage', face: e.face, message: e.message, showQuickReplies: true
-            })));
-
-            // Day-specific
-            if (dayOfWeek === 5) {
-                agentMessages.push({
-                    type: 'fun', face: '🎊',
-                    message: `שישי! סוף שבוע בפתח. נסגור משהו קטן? תרגיש טוב!`,
-                    showQuickReplies: true
-                });
-            }
-            if (dayOfWeek === 0) {
-                agentMessages.push({
-                    type: 'fun', face: '🚀',
-                    message: `שבוע חדש! מה נכבוש השבוע?`,
-                    showQuickReplies: true
-                });
-            }
-
-            // Shuffle (keep greeting first)
-            const greeting = agentMessages.find(m => m.type === 'greeting');
-            const others = agentMessages.filter(m => m.type !== 'greeting');
-            for (let i = others.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [others[i], others[j]] = [others[j], others[i]];
-            }
-            agentMessages = greeting ? [greeting, ...others] : others;
         }
 
         function updateAIRecommendation() {
-            generateAgentMessages();
-            showAgentMessage(0);
+            initChat();
         }
 
-        function showAgentMessage(index) {
-            if (agentMessages.length === 0) {
-                document.getElementById('aiContent').innerHTML = `הכל מסודר! בחר פרויקט והתחל 😊`;
-                document.getElementById('agentFace').textContent = '😊';
-                document.getElementById('agentStatus').textContent = 'מוכן לעזור';
-                document.getElementById('agentActions').style.display = 'none';
-                document.getElementById('quickReplies').style.display = 'none';
+        function renderChatHistory() {
+            const container = document.getElementById('chatMessages');
+            container.innerHTML = chatHistory.map(msg => renderChatMessage(msg)).join('');
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function renderChatMessage(msg) {
+            if (msg.type === 'user') {
+                return `
+                    <div class="chat-message user">
+                        <div class="chat-avatar">👤</div>
+                        <div class="chat-bubble">${msg.text}</div>
+                    </div>`;
+            } else {
+                let extra = '';
+                if (msg.suggestions) {
+                    extra = `<div class="chat-suggestions">
+                        ${msg.suggestions.map(s => `<button class="chat-suggestion" onclick="handleSuggestion('${s}')">${s}</button>`).join('')}
+                    </div>`;
+                }
+                if (msg.project) {
+                    const p = msg.project;
+                    extra = `
+                        <div class="chat-project-card" onclick="showLaunch('${p.id}')">
+                            <div class="chat-project-header">
+                                <span>${p.icon}</span>
+                                <span class="chat-project-name">${p.name}</span>
+                            </div>
+                            <div class="chat-project-desc">${p.description || ''}</div>
+                        </div>`;
+                }
+                if (msg.projects) {
+                    extra = msg.projects.map(p => `
+                        <div class="chat-project-card" onclick="showLaunch('${p.id}')">
+                            <div class="chat-project-header">
+                                <span>${p.icon}</span>
+                                <span class="chat-project-name">${p.name}</span>
+                            </div>
+                            <div class="chat-project-desc">${p.description || ''}</div>
+                        </div>`).join('');
+                }
+                return `
+                    <div class="chat-message agent">
+                        <div class="chat-avatar">🤖</div>
+                        <div class="chat-bubble">${msg.text}${extra}</div>
+                    </div>`;
+            }
+        }
+
+        function sendChatMessage() {
+            const input = document.getElementById('chatInput');
+            const text = input.value.trim();
+            if (!text || isTyping) return;
+
+            // Add user message
+            addChatMessage('user', text);
+            input.value = '';
+
+            // Process and respond
+            processUserMessage(text);
+        }
+
+        function addChatMessage(type, text, extra = {}) {
+            const msg = { type, text, time: Date.now(), ...extra };
+            chatHistory.push(msg);
+            if (chatHistory.length > 100) chatHistory = chatHistory.slice(-100);
+            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+
+            const container = document.getElementById('chatMessages');
+            container.innerHTML += renderChatMessage(msg);
+            container.scrollTop = container.scrollHeight;
+        }
+
+        function sendAgentMessage(text, extra = {}) {
+            isTyping = true;
+            document.getElementById('agentStatus').textContent = 'מקליד...';
+            document.getElementById('agentFace').textContent = '🤔';
+
+            // Show typing indicator
+            const container = document.getElementById('chatMessages');
+            container.innerHTML += `
+                <div class="chat-message agent" id="typingIndicator">
+                    <div class="chat-avatar">🤖</div>
+                    <div class="chat-bubble"><span class="typing-indicator"><span></span><span></span><span></span></span></div>
+                </div>`;
+            container.scrollTop = container.scrollHeight;
+
+            setTimeout(() => {
+                document.getElementById('typingIndicator')?.remove();
+                addChatMessage('agent', text, extra);
+                document.getElementById('agentStatus').textContent = 'מוכן לשיחה';
+                document.getElementById('agentFace').textContent = '🤖';
+                isTyping = false;
+            }, 600 + Math.random() * 400);
+        }
+
+        function processUserMessage(text) {
+            const lower = text.toLowerCase();
+
+            // Find project by name
+            const matchedProject = projects.find(p =>
+                lower.includes(p.name.toLowerCase()) ||
+                (p.description && lower.includes(p.description.toLowerCase()))
+            );
+
+            if (matchedProject) {
+                sendAgentMessage(`מצאתי את "${matchedProject.name}"! לחץ כדי להפעיל:`, { project: matchedProject });
                 return;
             }
 
-            agentMessageIndex = index % agentMessages.length;
-            currentAgentMessage = agentMessages[agentMessageIndex];
+            // Intent detection
+            if (lower.includes('עבוד') || lower.includes('התחל') || lower.includes('פתח') || lower.includes('הפעל')) {
+                handleWorkIntent(lower);
+            } else if (lower.includes('מה יש') || lower.includes('פרויקטים') || lower.includes('רשימה') || lower.includes('הצג')) {
+                handleListIntent(lower);
+            } else if (lower.includes('עזור') || lower.includes('תציע') || lower.includes('המלצה') || lower.includes('מה לעשות')) {
+                handleSuggestIntent();
+            } else if (lower.includes('סטטוס') || lower.includes('מצב') || lower.includes('איפה אני')) {
+                handleStatusIntent();
+            } else if (lower.includes('חדש') || lower.includes('ליצור') || lower.includes('להוסיף')) {
+                handleNewProjectIntent();
+            } else if (lower.includes('שלום') || lower.includes('היי') || lower.includes('בוקר') || lower.includes('ערב')) {
+                sendAgentMessage(getGreeting());
+            } else if (lower.includes('תודה') || lower.includes('יופי') || lower.includes('מעולה')) {
+                const responses = ['בכיף! 😊', 'תמיד כאן בשבילך! 💪', 'שמח לעזור! 🌟', 'בהצלחה! 🚀'];
+                sendAgentMessage(responses[Math.floor(Math.random() * responses.length)]);
+            } else {
+                // Default - try to be helpful
+                sendAgentMessage('לא בטוח שהבנתי... אפשר לנסות:', {
+                    suggestions: ['על מה לעבוד?', 'הצג פרויקטים', 'תציע משהו', 'מה הסטטוס?']
+                });
+            }
+        }
 
-            const aiContent = document.getElementById('aiContent');
-            const agentFace = document.getElementById('agentFace');
-            const agentStatus = document.getElementById('agentStatus');
-            const agentActions = document.getElementById('agentActions');
-            const quickReplies = document.getElementById('quickReplies');
-            const primaryBtn = document.getElementById('agentPrimaryBtn');
-            const secondaryBtn = document.getElementById('agentSecondaryBtn');
+        function handleWorkIntent(text) {
+            const activeProjects = projects.filter(p => p.status === 'in_progress' || p.status === 'active');
 
-            // Typing animation
-            aiContent.innerHTML = `<span class="typing-indicator"><span></span><span></span><span></span></span>`;
-            agentFace.textContent = '🤔';
-            agentStatus.textContent = 'מקליד...';
-            agentActions.style.display = 'none';
-            quickReplies.style.display = 'none';
+            if (activeProjects.length === 0) {
+                sendAgentMessage('אין פרויקטים פעילים כרגע. רוצה להתחיל אחד חדש?', {
+                    suggestions: ['הצג בתכנון', 'תציע משהו', 'פרויקט חדש']
+                });
+                return;
+            }
 
-            setTimeout(() => {
-                aiContent.innerHTML = currentAgentMessage.message;
-                agentFace.textContent = currentAgentMessage.face || '🤖';
+            if (activeProjects.length === 1) {
+                sendAgentMessage(`יש לך פרויקט פעיל אחד - "${activeProjects[0].name}". נתחיל?`, {
+                    project: activeProjects[0]
+                });
+            } else {
+                // Find most relevant
+                const stale = activeProjects
+                    .filter(p => p.lastSession)
+                    .sort((a, b) => new Date(a.lastSession) - new Date(b.lastSession));
 
-                const statusMap = {
-                    'greeting': 'שמח לראות אותך!', 'stale': 'דואג לפרויקטים',
-                    'planning': 'מעודד התקדמות', 'celebrate': 'חוגג איתך!',
-                    'github': 'מציע רעיונות', 'paused': 'בודק סטטוס',
-                    'encourage': 'מעודד', 'relationship': 'מציע שיתוף פעולה',
-                    'fun': 'במצב רוח טוב'
-                };
-                agentStatus.textContent = statusMap[currentAgentMessage.type] || 'חושב...';
-
-                if (currentAgentMessage.showActions) {
-                    primaryBtn.textContent = currentAgentMessage.primaryText;
-                    secondaryBtn.textContent = currentAgentMessage.secondaryText;
-                    agentActions.style.display = 'flex';
-                } else if (currentAgentMessage.showQuickReplies) {
-                    quickReplies.style.display = 'flex';
+                if (stale.length > 0) {
+                    const oldest = stale[0];
+                    const days = Math.floor((Date.now() - new Date(oldest.lastSession)) / 86400000);
+                    sendAgentMessage(`"${oldest.name}" לא קיבל תשומת לב כבר ${days} ימים. אולי נתחיל איתו?`, {
+                        project: oldest
+                    });
+                } else {
+                    sendAgentMessage('הנה הפרויקטים הפעילים שלך:', {
+                        projects: activeProjects.slice(0, 3)
+                    });
                 }
-
-                suggestedProject = currentAgentMessage.project || null;
-            }, 600);
+            }
         }
 
-        function nextAgentMessage() {
-            showAgentMessage(agentMessageIndex + 1);
+        function handleListIntent(text) {
+            if (text.includes('פעיל') || text.includes('בעבודה')) {
+                const active = projects.filter(p => p.status === 'in_progress' || p.status === 'active');
+                if (active.length === 0) {
+                    sendAgentMessage('אין פרויקטים פעילים כרגע.');
+                } else {
+                    sendAgentMessage(`${active.length} פרויקטים פעילים:`, { projects: active.slice(0, 5) });
+                }
+            } else if (text.includes('תכנון')) {
+                const planning = projects.filter(p => p.status === 'planning');
+                if (planning.length === 0) {
+                    sendAgentMessage('אין פרויקטים בתכנון.');
+                } else {
+                    sendAgentMessage(`${planning.length} פרויקטים בתכנון:`, { projects: planning.slice(0, 5) });
+                }
+            } else if (text.includes('הושלם') || text.includes('סיימתי')) {
+                const completed = projects.filter(p => p.status === 'completed');
+                sendAgentMessage(`יש ${completed.length} פרויקטים שהושלמו! 🎉`);
+            } else {
+                sendAgentMessage(`יש לך ${projects.length} פרויקטים בסך הכל:`, {
+                    suggestions: ['פעילים', 'בתכנון', 'הושלמו']
+                });
+            }
         }
 
-        function handleAgentAction(action) {
-            const msg = currentAgentMessage;
-            if (action === 'primary') {
-                if (msg.project) {
-                    if (msg.type === 'paused') {
-                        msg.project.status = 'in_progress';
-                        saveProjects();
-                        renderKanban([msg.project.id]);
-                        showToast(`🔄 "${msg.project.name}" חזר להיות פעיל!`);
+        function handleSuggestIntent() {
+            const now = new Date();
+
+            // Find stale projects
+            const stale = projects.filter(p => {
+                if (!p.lastSession || p.status === 'completed' || p.status === 'paused') return false;
+                return (now - new Date(p.lastSession)) / 86400000 > 5;
+            });
+
+            if (stale.length > 0) {
+                const pick = stale[Math.floor(Math.random() * stale.length)];
+                const days = Math.floor((now - new Date(pick.lastSession)) / 86400000);
+                sendAgentMessage(`מה דעתך על "${pick.name}"? לא נגעת בו ${days} ימים ונראה שזה משהו טוב!`, {
+                    project: pick
+                });
+            } else {
+                const active = projects.filter(p => p.status === 'in_progress' || p.status === 'active');
+                if (active.length > 0) {
+                    const pick = active[Math.floor(Math.random() * active.length)];
+                    sendAgentMessage(`בוא נמשיך עם "${pick.name}"!`, { project: pick });
+                } else {
+                    const planning = projects.filter(p => p.status === 'planning');
+                    if (planning.length > 0) {
+                        sendAgentMessage('יש כמה פרויקטים בתכנון שמחכים לך:', {
+                            projects: planning.slice(0, 3)
+                        });
                     } else {
-                        showLaunch(msg.project.id);
-                    }
-                } else if (msg.type === 'github' || msg.type === 'relationship') {
-                    suggestNewProject();
-                } else if (msg.type === 'greeting') {
-                    const active = projects.filter(p => p.status === 'in_progress' || p.status === 'active');
-                    if (active.length > 0) {
-                        showLaunch(active[Math.floor(Math.random() * active.length)].id);
+                        sendAgentMessage('כל הפרויקטים מטופלים! רוצה להתחיל משהו חדש?', {
+                            suggestions: ['פרויקט חדש', 'שדרג מגיטהאב', 'אולי מחר']
+                        });
                     }
                 }
-            } else {
-                showToast('👍 בסדר, נחזור לזה');
-                setTimeout(() => nextAgentMessage(), 500);
             }
         }
 
-        function agentQuickReply(reply) {
-            if (reply === 'yes') {
-                if (suggestedProject) showLaunch(suggestedProject.id);
-                else {
-                    const active = projects.filter(p => p.status === 'in_progress' || p.status === 'active');
-                    if (active.length) showLaunch(active[0].id);
-                }
-            } else if (reply === 'later') {
-                showToast('⏰ בסדר, מאוחר יותר');
-                nextAgentMessage();
-            } else {
-                nextAgentMessage();
-            }
+        function handleStatusIntent() {
+            const active = projects.filter(p => p.status === 'in_progress' || p.status === 'active').length;
+            const planning = projects.filter(p => p.status === 'planning').length;
+            const completed = projects.filter(p => p.status === 'completed').length;
+
+            sendAgentMessage(`📊 סטטוס: ${active} פעילים, ${planning} בתכנון, ${completed} הושלמו. סך הכל ${projects.length} פרויקטים!`, {
+                suggestions: ['הצג פעילים', 'על מה לעבוד?', 'תציע משהו']
+            });
         }
 
-        function suggestNewProject() {
-            const ideas = [
-                { name: 'שיפור UI/UX', desc: 'לשדרג ממשק של פרויקט קיים' },
-                { name: 'תיעוד', desc: 'להוסיף README מקיף' },
-                { name: 'טסטים', desc: 'להוסיף בדיקות אוטומטיות' },
-                { name: 'ביצועים', desc: 'לשפר מהירות טעינה' },
-                { name: 'נגישות', desc: 'לוודא שהאתר נגיש לכולם' }
-            ];
-            const idea = ideas[Math.floor(Math.random() * ideas.length)];
-            document.getElementById('aiContent').innerHTML =
-                `💡 <strong>${idea.name}</strong><br><br>${idea.desc}<br><br>מה דעתך?`;
-            document.getElementById('agentFace').textContent = '💡';
+        function handleNewProjectIntent() {
+            sendAgentMessage('רוצה ליצור פרויקט חדש? תוכל לערוך את הרג\'יסטרי ישירות:', {
+                suggestions: ['פתח רג\'יסטרי', 'אולי אחר כך']
+            });
+        }
+
+        function handleSuggestion(suggestion) {
+            document.getElementById('chatInput').value = suggestion;
+            sendChatMessage();
+        }
+
+        function clearChat() {
+            chatHistory = [];
+            localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+            document.getElementById('chatMessages').innerHTML = '';
+            setTimeout(() => sendAgentMessage(getGreeting()), 300);
+            showToast('🗑️ השיחה נוקתה');
         }
 
         function launchSuggested() {
