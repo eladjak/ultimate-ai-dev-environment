@@ -7,6 +7,18 @@ description: Use when managing multiple projects, viewing project kanban, updati
 
 Manage projects in a central registry, update status/info, and launch Claude sessions with automatic prompts.
 
+## Dashboard (Real-time UI)
+
+Open `~/.claude/dashboard/index.html` in browser for visual kanban board.
+
+**Features:**
+- Auto-refresh every 5 seconds
+- Real-time sync with `projects-registry.json`
+- Token usage tracking from `token-usage.json`
+- Visual status indicators (green=active, yellow=planning, etc.)
+- One-click launch commands
+- Change detection with highlight animation
+
 ## Quick Reference
 
 | Command | Description |
