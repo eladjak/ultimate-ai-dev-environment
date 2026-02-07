@@ -339,23 +339,174 @@
         }
         .launch-btn:hover { transform: scale(1.05); }
 
-        /* AI Recommendations */
-        .ai-panel {
-            background: linear-gradient(135deg, rgba(139,92,246,0.1), rgba(59,130,246,0.1));
+        /* AI Agent Panel */
+        .agent-panel {
+            background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(59,130,246,0.1));
             border: 1px solid var(--purple);
-            border-radius: 12px;
-            padding: 15px;
+            border-radius: 16px;
+            padding: 18px;
             margin-bottom: 15px;
+            position: relative;
+            overflow: hidden;
+        }
+        .agent-panel::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(139,92,246,0.1) 0%, transparent 70%);
+            pointer-events: none;
         }
         .ai-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: 12px;
+            margin-bottom: 12px;
+            position: relative;
         }
-        .ai-icon { font-size: 1.5em; }
-        .ai-title { font-weight: 600; }
-        .ai-content { color: var(--text-dim); font-size: 0.9em; line-height: 1.5; }
+        .agent-avatar {
+            position: relative;
+            width: 45px;
+            height: 45px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .agent-face {
+            font-size: 2em;
+            z-index: 1;
+            animation: agentBounce 3s ease-in-out infinite;
+        }
+        @keyframes agentBounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-3px); }
+        }
+        .agent-pulse {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: var(--purple);
+            opacity: 0.3;
+            animation: pulse 2s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(0.8); opacity: 0.3; }
+            50% { transform: scale(1.1); opacity: 0.1; }
+        }
+        .agent-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .ai-title { font-weight: 700; font-size: 1em; }
+        .agent-status {
+            font-size: 0.75em;
+            color: var(--text-dim);
+        }
+        .agent-refresh {
+            background: none;
+            border: none;
+            font-size: 1.2em;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: all 0.2s;
+            padding: 5px;
+        }
+        .agent-refresh:hover {
+            opacity: 1;
+            transform: rotate(180deg);
+        }
+        .agent-message-container {
+            min-height: 50px;
+        }
+        .agent-message {
+            color: var(--text);
+            font-size: 0.95em;
+            line-height: 1.6;
+            padding: 12px 15px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            border-right: 3px solid var(--purple);
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 5px 0;
+        }
+        .typing-indicator span {
+            width: 8px;
+            height: 8px;
+            background: var(--purple);
+            border-radius: 50%;
+            animation: typing 1.4s infinite;
+        }
+        .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-8px); opacity: 1; }
+        }
+        .agent-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 12px;
+        }
+        .agent-btn {
+            flex: 1;
+            padding: 10px 15px;
+            border-radius: 10px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 0.9em;
+        }
+        .agent-btn.primary {
+            background: linear-gradient(135deg, var(--purple), var(--blue));
+            color: white;
+        }
+        .agent-btn.primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(139,92,246,0.4);
+        }
+        .agent-btn.secondary {
+            background: var(--card);
+            color: var(--text-dim);
+            border: 1px solid var(--border);
+        }
+        .agent-btn.secondary:hover {
+            background: var(--card-hover);
+        }
+        .agent-quick-replies {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .quick-reply {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .quick-reply:hover {
+            background: var(--purple);
+            border-color: var(--purple);
+            color: white;
+        }
         .ai-suggestion {
             background: var(--card);
             border-radius: 8px;
@@ -566,16 +717,34 @@
         <button class="token-history-btn" onclick="showTokenHistory()">📊 היסטוריה</button>
     </div>
 
-    <!-- AI Panel -->
-    <div class="ai-panel" id="aiPanel">
+    <!-- AI Agent Panel -->
+    <div class="ai-panel agent-panel" id="aiPanel">
         <div class="ai-header">
-            <span class="ai-icon">🧠</span>
-            <span class="ai-title">המלצת AI</span>
+            <div class="agent-avatar">
+                <span class="agent-face" id="agentFace">🤖</span>
+                <span class="agent-pulse"></span>
+            </div>
+            <div class="agent-info">
+                <span class="ai-title">קלוד - העוזר האישי שלך</span>
+                <span class="agent-status" id="agentStatus">חושב...</span>
+            </div>
+            <button class="agent-refresh" onclick="nextAgentMessage()" title="הודעה הבאה">🔄</button>
         </div>
-        <div class="ai-content" id="aiContent">מנתח את הפרויקטים שלך...</div>
-        <div class="ai-suggestion" id="aiSuggestion" style="display: none;">
-            <span id="aiSuggestionText"></span>
-            <button class="launch-btn" onclick="launchSuggested()">🚀 הפעל</button>
+        <div class="agent-message-container">
+            <div class="ai-content agent-message" id="aiContent">
+                <span class="typing-indicator">
+                    <span></span><span></span><span></span>
+                </span>
+            </div>
+        </div>
+        <div class="agent-actions" id="agentActions" style="display: none;">
+            <button class="agent-btn primary" id="agentPrimaryBtn" onclick="handleAgentAction('primary')">🚀 בוא נעשה את זה</button>
+            <button class="agent-btn secondary" id="agentSecondaryBtn" onclick="handleAgentAction('secondary')">אולי אחר כך</button>
+        </div>
+        <div class="agent-quick-replies" id="quickReplies" style="display: none;">
+            <button class="quick-reply" onclick="agentQuickReply('yes')">👍 כן!</button>
+            <button class="quick-reply" onclick="agentQuickReply('later')">⏰ מאוחר יותר</button>
+            <button class="quick-reply" onclick="agentQuickReply('suggest')">💡 תציע משהו אחר</button>
         </div>
     </div>
 
@@ -862,55 +1031,278 @@
             }
         }
 
-        // ============ AI Recommendations ============
-        function updateAIRecommendation() {
-            const aiContent = document.getElementById('aiContent');
-            const aiSuggestion = document.getElementById('aiSuggestion');
-            const aiSuggestionText = document.getElementById('aiSuggestionText');
+        // ============ Smart Agent System ============
+        let currentAgentMessage = null;
+        let agentMessageIndex = 0;
+        let agentMessages = [];
 
-            // Simple AI logic
+        function generateAgentMessages() {
+            agentMessages = [];
+            const now = new Date();
+            const hour = now.getHours();
+            const dayOfWeek = now.getDay();
+
             const activeProjects = projects.filter(p => p.status === 'in_progress' || p.status === 'active');
-            const recentProjects = projects
-                .filter(p => p.lastSession)
-                .sort((a, b) => new Date(b.lastSession) - new Date(a.lastSession));
+            const planningProjects = projects.filter(p => p.status === 'planning');
+            const completedProjects = projects.filter(p => p.status === 'completed');
+            const pausedProjects = projects.filter(p => p.status === 'paused');
 
-            if (activeProjects.length === 0) {
-                aiContent.textContent = '🎯 אין פרויקטים פעילים. מומלץ להתחיל עם פרויקט חדש!';
-                aiSuggestion.style.display = 'none';
-            } else if (recentProjects.length > 0) {
-                const daysSinceLastWork = Math.floor((new Date() - new Date(recentProjects[0].lastSession)) / (1000 * 60 * 60 * 24));
+            const staleProjects = projects.filter(p => {
+                if (!p.lastSession) return false;
+                const days = Math.floor((now - new Date(p.lastSession)) / (1000 * 60 * 60 * 24));
+                return days > 5 && p.status !== 'completed' && p.status !== 'paused';
+            });
 
-                if (daysSinceLastWork > 3) {
-                    suggestedProject = recentProjects[0];
-                    aiContent.textContent = `⏰ לא עבדת על "${suggestedProject.name}" כבר ${daysSinceLastWork} ימים. מומלץ להמשיך!`;
-                    aiSuggestionText.textContent = `${suggestedProject.icon} ${suggestedProject.name}`;
-                    aiSuggestion.style.display = 'flex';
-                } else {
-                    // Find least worked on active project
-                    const leastWorked = activeProjects
-                        .filter(p => p.lastSession)
-                        .sort((a, b) => new Date(a.lastSession) - new Date(b.lastSession))[0];
+            // Time-based greetings
+            if (hour >= 5 && hour < 12) {
+                agentMessages.push({
+                    type: 'greeting', face: '☀️',
+                    message: `בוקר טוב! יש לך ${activeProjects.length} פרויקטים פעילים. על מה נעבוד היום?`,
+                    showActions: true, primaryText: '🎯 תבחר לי', secondaryText: 'אבחר בעצמי'
+                });
+            } else if (hour >= 12 && hour < 17) {
+                agentMessages.push({
+                    type: 'greeting', face: '💪',
+                    message: `צהריים טובים! איך הולך היום? יש עוד ${activeProjects.length} פרויקטים שמחכים.`,
+                    showQuickReplies: true
+                });
+            } else if (hour >= 17 && hour < 22) {
+                agentMessages.push({
+                    type: 'greeting', face: '🌅',
+                    message: `ערב טוב! עוד קצת התקדמות לפני סוף היום?`,
+                    showActions: true, primaryText: '🚀 יאללה בוא', secondaryText: 'נח היום'
+                });
+            } else {
+                agentMessages.push({
+                    type: 'greeting', face: '🌙',
+                    message: `עדיין ער? אני מעריך את המסירות! על מה נעבוד?`,
+                    showQuickReplies: true
+                });
+            }
 
-                    if (leastWorked) {
-                        suggestedProject = leastWorked;
-                        aiContent.textContent = `💡 "${leastWorked.name}" לא קיבל תשומת לב לאחרונה. שקול לעבוד עליו.`;
-                        aiSuggestionText.textContent = `${leastWorked.icon} ${leastWorked.name}`;
-                        aiSuggestion.style.display = 'flex';
+            // Stale project nudges
+            staleProjects.forEach(p => {
+                const days = Math.floor((now - new Date(p.lastSession)) / (1000 * 60 * 60 * 24));
+                const msgs = [
+                    `הי, "${p.name}" ${p.icon} לא קיבל אהבה כבר ${days} ימים. מתי מתקדמים עם זה?`,
+                    `${p.icon} "${p.name}" - זוכר? עברו ${days} ימים. אולי הגיע הזמן לחזור?`,
+                    `"${p.name}" ${p.icon} - זה נראה משהו ממש טוב! לא חבל להשאיר אותו ככה?`,
+                    `${days} ימים בלי "${p.name}" ${p.icon}. קורה משהו? אולי אעזור להתחיל?`
+                ];
+                agentMessages.push({
+                    type: 'stale', face: '🤔',
+                    message: msgs[Math.floor(Math.random() * msgs.length)],
+                    project: p, showActions: true,
+                    primaryText: '🚀 בוא נעבוד על זה', secondaryText: 'אחר כך'
+                });
+            });
+
+            // Planning projects
+            planningProjects.forEach(p => {
+                const msgs = [
+                    `"${p.name}" ${p.icon} עדיין בתכנון... מה צריך כדי להתחיל?`,
+                    `${p.icon} יש לך רעיון מעולה ב"${p.name}". מתחילים היום?`
+                ];
+                agentMessages.push({
+                    type: 'planning', face: '💡',
+                    message: msgs[Math.floor(Math.random() * msgs.length)],
+                    project: p, showActions: true,
+                    primaryText: '✨ יאללה מתחילים', secondaryText: 'עוד לא עכשיו'
+                });
+            });
+
+            // Celebrate completed
+            if (completedProjects.length > 0 && Math.random() > 0.7) {
+                const p = completedProjects[Math.floor(Math.random() * completedProjects.length)];
+                agentMessages.push({
+                    type: 'celebrate', face: '🎉',
+                    message: `וואו, "${p.name}" ${p.icon} הושלם! כל הכבוד! מה הבא?`,
+                    showQuickReplies: true
+                });
+            }
+
+            // GitHub suggestion
+            agentMessages.push({
+                type: 'github', face: '✨',
+                message: `יש לך הרבה פרויקטים בגיטהאב. אולי נשדרג אחד מהם יחד?`,
+                showActions: true, primaryText: '🔍 בוא נבדוק', secondaryText: 'לא עכשיו'
+            });
+
+            // Relationship building
+            if (Math.random() > 0.6) {
+                agentMessages.push({
+                    type: 'relationship', face: '🤝',
+                    message: `אפשר להציע לך פרויקט חדש איתי? על סמך ההיכרות שלנו, יש לי כמה רעיונות!`,
+                    showActions: true, primaryText: '💡 מה יש לך?', secondaryText: 'בפעם אחרת'
+                });
+            }
+
+            // Paused projects
+            pausedProjects.forEach(p => {
+                agentMessages.push({
+                    type: 'paused', face: '🤷',
+                    message: `"${p.name}" ${p.icon} מושהה. עדיין רלוונטי? אולי נחזיר לחיים?`,
+                    project: p, showActions: true,
+                    primaryText: '🔄 להחזיר לפעיל', secondaryText: 'להשאיר'
+                });
+            });
+
+            // Encouragements
+            const encouragements = [
+                { face: '💪', message: `${projects.length} פרויקטים! אתה עסוק. על מה הכי חשוב להתמקד?` },
+                { face: '🎯', message: `מה המטרה הכי חשובה לך היום? אני פה לעזור!` },
+                { face: '🧠', message: `טיפ: לפעמים כדאי לסיים פרויקט לפני שמתחילים חדש.` },
+                { face: '🌟', message: `אתה עושה עבודה מדהימה! איזה פרויקט הכי קרוב לסיום?` }
+            ];
+            agentMessages.push(...encouragements.map(e => ({
+                type: 'encourage', face: e.face, message: e.message, showQuickReplies: true
+            })));
+
+            // Day-specific
+            if (dayOfWeek === 5) {
+                agentMessages.push({
+                    type: 'fun', face: '🎊',
+                    message: `שישי! סוף שבוע בפתח. נסגור משהו קטן? תרגיש טוב!`,
+                    showQuickReplies: true
+                });
+            }
+            if (dayOfWeek === 0) {
+                agentMessages.push({
+                    type: 'fun', face: '🚀',
+                    message: `שבוע חדש! מה נכבוש השבוע?`,
+                    showQuickReplies: true
+                });
+            }
+
+            // Shuffle (keep greeting first)
+            const greeting = agentMessages.find(m => m.type === 'greeting');
+            const others = agentMessages.filter(m => m.type !== 'greeting');
+            for (let i = others.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [others[i], others[j]] = [others[j], others[i]];
+            }
+            agentMessages = greeting ? [greeting, ...others] : others;
+        }
+
+        function updateAIRecommendation() {
+            generateAgentMessages();
+            showAgentMessage(0);
+        }
+
+        function showAgentMessage(index) {
+            if (agentMessages.length === 0) {
+                document.getElementById('aiContent').innerHTML = `הכל מסודר! בחר פרויקט והתחל 😊`;
+                document.getElementById('agentFace').textContent = '😊';
+                document.getElementById('agentStatus').textContent = 'מוכן לעזור';
+                document.getElementById('agentActions').style.display = 'none';
+                document.getElementById('quickReplies').style.display = 'none';
+                return;
+            }
+
+            agentMessageIndex = index % agentMessages.length;
+            currentAgentMessage = agentMessages[agentMessageIndex];
+
+            const aiContent = document.getElementById('aiContent');
+            const agentFace = document.getElementById('agentFace');
+            const agentStatus = document.getElementById('agentStatus');
+            const agentActions = document.getElementById('agentActions');
+            const quickReplies = document.getElementById('quickReplies');
+            const primaryBtn = document.getElementById('agentPrimaryBtn');
+            const secondaryBtn = document.getElementById('agentSecondaryBtn');
+
+            // Typing animation
+            aiContent.innerHTML = `<span class="typing-indicator"><span></span><span></span><span></span></span>`;
+            agentFace.textContent = '🤔';
+            agentStatus.textContent = 'מקליד...';
+            agentActions.style.display = 'none';
+            quickReplies.style.display = 'none';
+
+            setTimeout(() => {
+                aiContent.innerHTML = currentAgentMessage.message;
+                agentFace.textContent = currentAgentMessage.face || '🤖';
+
+                const statusMap = {
+                    'greeting': 'שמח לראות אותך!', 'stale': 'דואג לפרויקטים',
+                    'planning': 'מעודד התקדמות', 'celebrate': 'חוגג איתך!',
+                    'github': 'מציע רעיונות', 'paused': 'בודק סטטוס',
+                    'encourage': 'מעודד', 'relationship': 'מציע שיתוף פעולה',
+                    'fun': 'במצב רוח טוב'
+                };
+                agentStatus.textContent = statusMap[currentAgentMessage.type] || 'חושב...';
+
+                if (currentAgentMessage.showActions) {
+                    primaryBtn.textContent = currentAgentMessage.primaryText;
+                    secondaryBtn.textContent = currentAgentMessage.secondaryText;
+                    agentActions.style.display = 'flex';
+                } else if (currentAgentMessage.showQuickReplies) {
+                    quickReplies.style.display = 'flex';
+                }
+
+                suggestedProject = currentAgentMessage.project || null;
+            }, 600);
+        }
+
+        function nextAgentMessage() {
+            showAgentMessage(agentMessageIndex + 1);
+        }
+
+        function handleAgentAction(action) {
+            const msg = currentAgentMessage;
+            if (action === 'primary') {
+                if (msg.project) {
+                    if (msg.type === 'paused') {
+                        msg.project.status = 'in_progress';
+                        saveProjects();
+                        renderKanban([msg.project.id]);
+                        showToast(`🔄 "${msg.project.name}" חזר להיות פעיל!`);
                     } else {
-                        aiContent.textContent = `✨ יש לך ${activeProjects.length} פרויקטים פעילים. המשך בקצב!`;
-                        aiSuggestion.style.display = 'none';
+                        showLaunch(msg.project.id);
+                    }
+                } else if (msg.type === 'github' || msg.type === 'relationship') {
+                    suggestNewProject();
+                } else if (msg.type === 'greeting') {
+                    const active = projects.filter(p => p.status === 'in_progress' || p.status === 'active');
+                    if (active.length > 0) {
+                        showLaunch(active[Math.floor(Math.random() * active.length)].id);
                     }
                 }
             } else {
-                aiContent.textContent = '🚀 התחל לעבוד על פרויקט כדי לקבל המלצות מותאמות!';
-                aiSuggestion.style.display = 'none';
+                showToast('👍 בסדר, נחזור לזה');
+                setTimeout(() => nextAgentMessage(), 500);
             }
         }
 
-        function launchSuggested() {
-            if (suggestedProject) {
-                showLaunch(suggestedProject.id);
+        function agentQuickReply(reply) {
+            if (reply === 'yes') {
+                if (suggestedProject) showLaunch(suggestedProject.id);
+                else {
+                    const active = projects.filter(p => p.status === 'in_progress' || p.status === 'active');
+                    if (active.length) showLaunch(active[0].id);
+                }
+            } else if (reply === 'later') {
+                showToast('⏰ בסדר, מאוחר יותר');
+                nextAgentMessage();
+            } else {
+                nextAgentMessage();
             }
+        }
+
+        function suggestNewProject() {
+            const ideas = [
+                { name: 'שיפור UI/UX', desc: 'לשדרג ממשק של פרויקט קיים' },
+                { name: 'תיעוד', desc: 'להוסיף README מקיף' },
+                { name: 'טסטים', desc: 'להוסיף בדיקות אוטומטיות' },
+                { name: 'ביצועים', desc: 'לשפר מהירות טעינה' },
+                { name: 'נגישות', desc: 'לוודא שהאתר נגיש לכולם' }
+            ];
+            const idea = ideas[Math.floor(Math.random() * ideas.length)];
+            document.getElementById('aiContent').innerHTML =
+                `💡 <strong>${idea.name}</strong><br><br>${idea.desc}<br><br>מה דעתך?`;
+            document.getElementById('agentFace').textContent = '💡';
+        }
+
+        function launchSuggested() {
+            if (suggestedProject) showLaunch(suggestedProject.id);
         }
 
         // ============ Kanban Rendering ============
