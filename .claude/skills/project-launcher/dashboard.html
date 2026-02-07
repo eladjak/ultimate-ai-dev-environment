@@ -539,6 +539,177 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
+        /* Notification Bell */
+        .notification-bell {
+            position: relative;
+            background: none;
+            border: none;
+            font-size: 1.4em;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 10px;
+            transition: all 0.2s;
+        }
+        .notification-bell:hover {
+            background: var(--card);
+        }
+        .notification-badge {
+            position: absolute;
+            top: 2px;
+            right: 2px;
+            background: var(--red);
+            color: white;
+            font-size: 0.55em;
+            min-width: 18px;
+            height: 18px;
+            border-radius: 9px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            animation: badgePop 0.3s ease;
+        }
+        .notification-badge.hidden { display: none; }
+        @keyframes badgePop {
+            0% { transform: scale(0); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        .notification-bell.ringing {
+            animation: ring 0.5s ease;
+        }
+        @keyframes ring {
+            0%, 100% { transform: rotate(0); }
+            20%, 60% { transform: rotate(15deg); }
+            40%, 80% { transform: rotate(-15deg); }
+        }
+
+        /* Notification Panel */
+        .notification-panel {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            width: 320px;
+            max-height: 400px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            z-index: 1001;
+            display: none;
+            overflow: hidden;
+        }
+        .notification-panel.show { display: block; }
+        .notification-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            background: var(--card);
+        }
+        .notification-title {
+            font-weight: 600;
+            font-size: 0.9em;
+        }
+        .notification-clear {
+            background: none;
+            border: none;
+            color: var(--blue);
+            font-size: 0.8em;
+            cursor: pointer;
+        }
+        .notification-list {
+            max-height: 320px;
+            overflow-y: auto;
+        }
+        .notification-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px 15px;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .notification-item:hover {
+            background: var(--card);
+        }
+        .notification-item.unread {
+            background: rgba(59,130,246,0.1);
+        }
+        .notification-item.unread::before {
+            content: '';
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 8px;
+            height: 8px;
+            background: var(--blue);
+            border-radius: 50%;
+        }
+        .notification-icon {
+            font-size: 1.5em;
+            flex-shrink: 0;
+        }
+        .notification-content {
+            flex: 1;
+            min-width: 0;
+        }
+        .notification-text {
+            font-size: 0.85em;
+            line-height: 1.4;
+            margin-bottom: 4px;
+        }
+        .notification-time {
+            font-size: 0.7em;
+            color: var(--text-dim);
+        }
+        .notification-empty {
+            padding: 30px;
+            text-align: center;
+            color: var(--text-dim);
+        }
+        .notification-settings {
+            padding: 10px 15px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.8em;
+        }
+        .notification-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .toggle-switch {
+            width: 36px;
+            height: 20px;
+            background: var(--card);
+            border-radius: 10px;
+            position: relative;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .toggle-switch.active {
+            background: var(--green);
+        }
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s;
+        }
+        .toggle-switch.active::after {
+            transform: translateX(16px);
+        }
+
         /* Modal */
         .modal {
             display: none;
@@ -700,6 +871,28 @@
             </div>
         </div>
         <div class="header-controls">
+            <!-- Notification Bell -->
+            <div style="position: relative;">
+                <button class="notification-bell" id="notificationBell" onclick="toggleNotifications()" title="התראות">
+                    🔔
+                    <span class="notification-badge hidden" id="notificationBadge">0</span>
+                </button>
+                <div class="notification-panel" id="notificationPanel">
+                    <div class="notification-header">
+                        <span class="notification-title">🔔 התראות</span>
+                        <button class="notification-clear" onclick="clearNotifications()">נקה הכל</button>
+                    </div>
+                    <div class="notification-list" id="notificationList">
+                        <div class="notification-empty">אין התראות חדשות</div>
+                    </div>
+                    <div class="notification-settings">
+                        <span>התראות דפדפן</span>
+                        <div class="notification-toggle">
+                            <div class="toggle-switch" id="pushToggle" onclick="togglePushNotifications()"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
             <button class="theme-toggle" onclick="toggleTheme()" title="החלף ערכת נושא">🌙</button>
         </div>
     </div>
@@ -1305,6 +1498,249 @@
             if (suggestedProject) showLaunch(suggestedProject.id);
         }
 
+        // ============ Notification System ============
+        let notifications = JSON.parse(localStorage.getItem('dashboardNotifications') || '[]');
+        let pushEnabled = localStorage.getItem('pushNotificationsEnabled') === 'true';
+        let lastNotificationCheck = localStorage.getItem('lastNotificationCheck') || null;
+
+        function initNotifications() {
+            updateNotificationBadge();
+            updatePushToggle();
+            renderNotifications();
+            checkForNewNotifications();
+
+            // Check for notifications every minute
+            setInterval(checkForNewNotifications, 60000);
+        }
+
+        function toggleNotifications() {
+            const panel = document.getElementById('notificationPanel');
+            panel.classList.toggle('show');
+
+            // Mark as read when opening
+            if (panel.classList.contains('show')) {
+                notifications.forEach(n => n.read = true);
+                saveNotifications();
+                updateNotificationBadge();
+            }
+        }
+
+        function updateNotificationBadge() {
+            const badge = document.getElementById('notificationBadge');
+            const unreadCount = notifications.filter(n => !n.read).length;
+
+            if (unreadCount > 0) {
+                badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
+                badge.classList.remove('hidden');
+                document.getElementById('notificationBell').classList.add('ringing');
+                setTimeout(() => {
+                    document.getElementById('notificationBell').classList.remove('ringing');
+                }, 500);
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function renderNotifications() {
+            const list = document.getElementById('notificationList');
+
+            if (notifications.length === 0) {
+                list.innerHTML = '<div class="notification-empty">🔕 אין התראות חדשות</div>';
+                return;
+            }
+
+            list.innerHTML = notifications
+                .sort((a, b) => new Date(b.time) - new Date(a.time))
+                .slice(0, 20)
+                .map(n => `
+                    <div class="notification-item ${n.read ? '' : 'unread'}" onclick="handleNotificationClick('${n.id}')">
+                        <span class="notification-icon">${n.icon}</span>
+                        <div class="notification-content">
+                            <div class="notification-text">${n.message}</div>
+                            <div class="notification-time">${formatTimeAgo(n.time)}</div>
+                        </div>
+                    </div>
+                `).join('');
+        }
+
+        function formatTimeAgo(time) {
+            const diff = Date.now() - new Date(time).getTime();
+            const minutes = Math.floor(diff / 60000);
+            const hours = Math.floor(diff / 3600000);
+            const days = Math.floor(diff / 86400000);
+
+            if (minutes < 1) return 'עכשיו';
+            if (minutes < 60) return `לפני ${minutes} דקות`;
+            if (hours < 24) return `לפני ${hours} שעות`;
+            return `לפני ${days} ימים`;
+        }
+
+        function addNotification(icon, message, type = 'info', projectId = null) {
+            const notification = {
+                id: Date.now().toString(),
+                icon,
+                message,
+                type,
+                projectId,
+                time: new Date().toISOString(),
+                read: false
+            };
+
+            notifications.unshift(notification);
+            if (notifications.length > 50) notifications = notifications.slice(0, 50);
+            saveNotifications();
+            updateNotificationBadge();
+            renderNotifications();
+
+            // Show browser notification if enabled
+            if (pushEnabled && Notification.permission === 'granted') {
+                showBrowserNotification(icon, message);
+            }
+        }
+
+        function showBrowserNotification(icon, message) {
+            const notification = new Notification('Claude Dashboard', {
+                body: message,
+                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🤖</text></svg>',
+                badge: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><text y=".9em" font-size="90">🔔</text></svg>',
+                tag: 'claude-dashboard',
+                renotify: true
+            });
+
+            notification.onclick = () => {
+                window.focus();
+                notification.close();
+            };
+
+            setTimeout(() => notification.close(), 5000);
+        }
+
+        function handleNotificationClick(notificationId) {
+            const notification = notifications.find(n => n.id === notificationId);
+            if (notification) {
+                notification.read = true;
+                saveNotifications();
+
+                if (notification.projectId) {
+                    showLaunch(notification.projectId);
+                }
+
+                toggleNotifications();
+            }
+        }
+
+        function clearNotifications() {
+            notifications = [];
+            saveNotifications();
+            renderNotifications();
+            updateNotificationBadge();
+            showToast('🗑️ ההתראות נוקו');
+        }
+
+        function saveNotifications() {
+            localStorage.setItem('dashboardNotifications', JSON.stringify(notifications));
+        }
+
+        function togglePushNotifications() {
+            if (!pushEnabled) {
+                // Request permission
+                if ('Notification' in window) {
+                    Notification.requestPermission().then(permission => {
+                        if (permission === 'granted') {
+                            pushEnabled = true;
+                            localStorage.setItem('pushNotificationsEnabled', 'true');
+                            updatePushToggle();
+                            showToast('🔔 התראות דפדפן הופעלו!');
+                            addNotification('✅', 'התראות דפדפן הופעלו! תקבל עדכונים גם כשהדשבורד סגור.', 'system');
+                        } else {
+                            showToast('⚠️ ההרשאה נדחתה', true);
+                        }
+                    });
+                }
+            } else {
+                pushEnabled = false;
+                localStorage.setItem('pushNotificationsEnabled', 'false');
+                updatePushToggle();
+                showToast('🔕 התראות דפדפן כובו');
+            }
+        }
+
+        function updatePushToggle() {
+            const toggle = document.getElementById('pushToggle');
+            if (pushEnabled && Notification.permission === 'granted') {
+                toggle.classList.add('active');
+            } else {
+                toggle.classList.remove('active');
+            }
+        }
+
+        function checkForNewNotifications() {
+            const now = new Date();
+            const lastCheck = lastNotificationCheck ? new Date(lastNotificationCheck) : null;
+
+            // Check stale projects
+            projects.forEach(p => {
+                if (!p.lastSession || p.status === 'completed' || p.status === 'paused') return;
+
+                const daysSince = Math.floor((now - new Date(p.lastSession)) / 86400000);
+
+                // Notify for projects not touched in 7+ days
+                if (daysSince >= 7) {
+                    const notificationKey = `stale_${p.id}_${Math.floor(daysSince / 7)}`;
+                    if (!notifications.find(n => n.id === notificationKey)) {
+                        addNotification(
+                            p.icon,
+                            `"${p.name}" לא קיבל תשומת לב כבר ${daysSince} ימים. אולי הגיע הזמן לחזור אליו?`,
+                            'reminder',
+                            p.id
+                        );
+                        // Override the auto-generated ID
+                        notifications[0].id = notificationKey;
+                        saveNotifications();
+                    }
+                }
+            });
+
+            // Daily motivation (once per day)
+            const today = now.toISOString().split('T')[0];
+            const motivationKey = `daily_${today}`;
+            if (!notifications.find(n => n.id === motivationKey)) {
+                const hour = now.getHours();
+                if (hour >= 8 && hour <= 10) {
+                    const activeCount = projects.filter(p => p.status === 'in_progress' || p.status === 'active').length;
+                    const motivations = [
+                        `בוקר טוב! יש לך ${activeCount} פרויקטים פעילים. מוכן ליום פרודוקטיבי?`,
+                        `יום חדש, הזדמנויות חדשות! ${activeCount} פרויקטים מחכים לך.`,
+                        `☀️ בוקר של יצירה! על מה נעבוד היום?`
+                    ];
+                    addNotification('🌅', motivations[Math.floor(Math.random() * motivations.length)], 'motivation');
+                    notifications[0].id = motivationKey;
+                    saveNotifications();
+                }
+            }
+
+            // Weekend reminder (Friday afternoon)
+            if (now.getDay() === 5 && now.getHours() >= 14 && now.getHours() <= 16) {
+                const weekendKey = `weekend_${today}`;
+                if (!notifications.find(n => n.id === weekendKey)) {
+                    addNotification('🎉', 'סוף שבוע בפתח! אולי נסגור משהו קטן לפני?', 'reminder');
+                    notifications[0].id = weekendKey;
+                    saveNotifications();
+                }
+            }
+
+            localStorage.setItem('lastNotificationCheck', now.toISOString());
+        }
+
+        // Close notification panel when clicking outside
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('notificationPanel');
+            const bell = document.getElementById('notificationBell');
+            if (panel.classList.contains('show') && !panel.contains(e.target) && !bell.contains(e.target)) {
+                panel.classList.remove('show');
+            }
+        });
+
         // ============ Kanban Rendering ============
         function renderKanban(changedIds = []) {
             const board = document.getElementById('kanbanBoard');
@@ -1571,6 +2007,7 @@
         // ============ Initialize ============
         refreshData();
         connectWebSocket();
+        initNotifications();
         setInterval(refreshData, CONFIG.refreshInterval);
 
         document.addEventListener('visibilitychange', () => {
