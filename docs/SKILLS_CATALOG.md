@@ -179,9 +179,10 @@
 |-------|-------------|
 | `calendar` | Google Calendar integration |
 | `whatsapp` | WhatsApp automation |
-| `speech-generator` | ElevenLabs TTS |
-| `html-to-pdf` | PDF generation |
-| `html-to-pptx` | PowerPoint generation |
+| `speech-generator` | ElevenLabs TTS (v3 Hebrew, number handling, UTF-8) |
+| `html-to-pdf` | PDF generation (Puppeteer, pixel-perfect) |
+| `html-to-pptx` | PowerPoint generation (Hebrew/RTL, overflow detection) |
+| `kinetic-video-creator` | Kinetic typography videos (Pillow+FFmpeg, Hebrew/RTL, scene-based) |
 | `presentation-architect` | Presentation scripting |
 | `mermaid-diagrams` | Diagram generation |
 | `figma` | Figma API integration |

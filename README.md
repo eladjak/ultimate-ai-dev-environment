@@ -62,6 +62,14 @@
 - `eval-harness` - Evaluation frameworks for AI systems
 - `clickhouse-io` / `postgres-patterns` - Database best practices
 
+**Content Creation & Media (NEW Feb 2026):**
+- `kinetic-video-creator` - Kinetic typography videos (Pillow+FFmpeg or Remotion), Hebrew/RTL support
+- `speech-generator` - ElevenLabs TTS with Hebrew support (v3 model, number handling)
+- `html-to-pptx` - HTML to PowerPoint with Hebrew/RTL, overflow detection
+- `html-to-pdf` - HTML to PDF with Puppeteer, pixel-perfect rendering
+- `nano-banana-poster` - AI image generation with Google Gemini
+- `presentation-architect` - Transform briefs into structured presentations
+
 **And 90+ more skills!** See [Full Skills Catalog](./docs/SKILLS_CATALOG.md)
 
 #### 2. 15 Specialized Agents
