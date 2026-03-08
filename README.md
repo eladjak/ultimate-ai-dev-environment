@@ -1,8 +1,8 @@
 # 🚀 Ultimate AI Development Environment
 
-> The most comprehensive AI development setup - 112+ skills, 11 MCP servers, 15 agents, 23 commands, 20+ rules
+> The most comprehensive AI development setup - 230+ skills, 11 MCP servers, 15 agents, 23 commands, 20+ rules
 
-[![Skills](https://img.shields.io/badge/Skills-120+-blue.svg)](./docs/SKILLS_CATALOG.md)
+[![Skills](https://img.shields.io/badge/Skills-230+-blue.svg)](./docs/SKILLS_CATALOG.md)
 [![MCP Servers](https://img.shields.io/badge/MCP_Servers-11-green.svg)](./docs/MCP_SERVERS_GUIDE.md)
 [![Agents](https://img.shields.io/badge/Agents-15-purple.svg)](./agents/)
 [![Commands](https://img.shields.io/badge/Commands-27-cyan.svg)](./commands/)
