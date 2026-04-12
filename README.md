@@ -11,6 +11,8 @@
 
 [עברית](./README.he.md) | English
 
+> **If you find this useful, please [⭐ star this repo](https://github.com/eladjak/ultimate-ai-dev-environment)!** It helps others discover this resource.
+
 ## ✨ Features
 
 - **🔍 Skill Registry MCP** - "App Store for Claude Code Skills" - Solves MCP Challenge #3: Discovery
